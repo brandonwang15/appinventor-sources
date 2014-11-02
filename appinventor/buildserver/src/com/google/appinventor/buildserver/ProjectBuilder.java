@@ -64,6 +64,8 @@ public final class ProjectBuilder {
 
   private static final String FORM_PROPERTIES_EXTENSION =
       YoungAndroidConstants.FORM_PROPERTIES_EXTENSION;
+  private static final String TASK_PROPERTIES_EXTENSION =
+      YoungAndroidConstants.TASK_PROPERTIES_EXTENSION;
   private static final String YAIL_EXTENSION = YoungAndroidConstants.YAIL_EXTENSION;
 
   private static final String CODEBLOCKS_SOURCE_EXTENSION =
@@ -210,7 +212,9 @@ public final class ProjectBuilder {
         new Predicate<String>() {
           @Override
           public boolean apply(String input) {
-            return input.endsWith(FORM_PROPERTIES_EXTENSION) || input.endsWith(YAIL_EXTENSION);
+            return input.endsWith(FORM_PROPERTIES_EXTENSION) ||
+                    input.endsWith(TASK_PROPERTIES_EXTENSION) || 
+                      input.endsWith(YAIL_EXTENSION);
           }
         });
     for (String sourceFile : formAndYailSourceFiles) {
@@ -221,7 +225,14 @@ public final class ProjectBuilder {
         // Note: Famous last words: The following contains() makes this method O(n**2) but n should
         // be pretty small.
         if (!sourceFiles.contains(yailFilePath)) {
-          generateYail(rootPath);
+          generateYail(rootPath, true);
+        }
+      } else if (sourceFile.endsWith(TASK_PROPERTIES_EXTENSION)) {
+        String rootPath = sourceFile.substring(0, sourceFile.length()
+                                                  - TASK_PROPERTIES_EXTENSION.length());
+        String yailFilePath = rootPath + YAIL_EXTENSION;
+        if (!sourceFiles.contains(yailFilePath)) {
+          generateYail(rootPath, false);
         }
       }
     }
@@ -263,7 +274,7 @@ public final class ProjectBuilder {
       throws IOException {
     Set<String> componentTypes = Sets.newHashSet();
     for (String f : files) {
-      if (f.endsWith(".scm")) {
+      if (f.endsWith(".scm") || f.endsWith(".tsk")) {
         File scmFile = new File(f);
         String scmContent = new String(Files.toByteArray(scmFile), PathUtil.DEFAULT_CHARSET);
         componentTypes.addAll(getTypesFromScm(scmContent));
@@ -413,8 +424,13 @@ public final class ProjectBuilder {
     return new Project(projectRoot.getAbsolutePath() + "/" + PROJECT_PROPERTIES_FILE_NAME);
   }
 
-  private File generateYail(String rootName) throws IOException, YailGenerationException {
-    String formPropertiesPath = rootName + FORM_PROPERTIES_EXTENSION;
+  private File generateYail(String rootName, boolean isForm) throws IOException, YailGenerationException {
+    String formPropertiesPath;
+    if (isForm) {
+      formPropertiesPath  = rootName + FORM_PROPERTIES_EXTENSION;
+    } else {
+      formPropertiesPath = rootName + TASK_PROPERTIES_EXTENSION;
+    }
     String codeblocksSourcePath = rootName + CODEBLOCKS_SOURCE_EXTENSION;
     String yailPath = rootName + YAIL_EXTENSION;
 

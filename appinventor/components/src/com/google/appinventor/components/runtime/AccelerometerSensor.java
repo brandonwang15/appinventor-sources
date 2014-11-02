@@ -67,8 +67,8 @@ import java.util.Queue;
     nonVisible = true,
     iconName = "images/accelerometersensor.png")
 @SimpleObject
-public class AccelerometerSensor extends AndroidNonvisibleComponent
-    implements OnStopListener, OnResumeListener, SensorComponent, SensorEventListener, Deleteable {
+public class AccelerometerSensor extends AndroidNonVisibleTaskComponent
+    implements OnStopListener, OnResumeListener, OnDestroyListener, SensorComponent, SensorEventListener, Deleteable {
 
   // Shake thresholds - derived by trial
   private static final double weakShakeThreshold = 5.0;
@@ -110,9 +110,11 @@ public class AccelerometerSensor extends AndroidNonvisibleComponent
    * @param container  ignored (because this is a non-visible component)
    */
   public AccelerometerSensor(ComponentContainer container) {
-    super(container.$form());
-    form.registerForOnResume(this);
-    form.registerForOnStop(this);
+    super(container);
+    if (form != null) {
+      form.registerForOnResume(this);
+      form.registerForOnStop(this);
+    }
 
     enabled = true;
     sensorManager = (SensorManager) container.$context().getSystemService(Context.SENSOR_SERVICE);
@@ -184,7 +186,7 @@ public class AccelerometerSensor extends AndroidNonvisibleComponent
     if ((sensitivity == 1) || (sensitivity == 2) || (sensitivity == 3)) {
       this.sensitivity = sensitivity;
     } else {
-      form.dispatchErrorOccurredEvent(this, "Sensitivity",
+      dispatchErrorOccurredEvent(this, "Sensitivity",
           ErrorMessages.ERROR_BAD_VALUE_FOR_ACCELEROMETER_SENSITIVITY, sensitivity);
     }
   }
@@ -383,6 +385,13 @@ public class AccelerometerSensor extends AndroidNonvisibleComponent
 
   @Override
   public void onStop() {
+    if (enabled) {
+      stopListening();
+    }
+  }
+
+  @Override
+  public void onDestroy() {
     if (enabled) {
       stopListening();
     }

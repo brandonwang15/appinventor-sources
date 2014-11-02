@@ -106,7 +106,6 @@ public abstract class ProjectEditor extends Composite {
     String fileId = fileEditor.getFileId();
     openFileEditors.put(fileId, fileEditor);
     fileIds.add(fileId);
-    
     deckPanel.add(fileEditor);
   }
 

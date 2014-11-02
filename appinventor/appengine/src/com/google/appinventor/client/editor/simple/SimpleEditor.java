@@ -65,4 +65,8 @@ public abstract class SimpleEditor extends FileEditor {
    * Returns true if this editor is for Screen1.
    */
   public abstract boolean isScreen1();
+
+  public abstract String encodeFormAsJsonString();
+
+  public abstract String preUpgradeJsonString();
 }

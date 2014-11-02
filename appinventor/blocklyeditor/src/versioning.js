@@ -1164,7 +1164,7 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // AI2: No blocks need to be modified to upgrade to version 10
     // The default value of TextAlignment was changed from Normal (left) to Center
-    10: "noUpgrade",
+    10: "noUpgrade"
 
   }, // End Canvas upgraders
 
@@ -1501,14 +1501,6 @@ Blockly.Versioning.AllUpgradeMaps =
 
   "LocationSensor": {
 
-    // AI1: The TimeInterval and DistanceInterval properties were added.
-    // No changes required.
-    2: "noUpgrade"
-
-  }, // End LocationSensor upgraders
-
-  "LocationSensor": {
-
     // AI2: The TimeInterval and DistanceInterval properties were added.
     2: "noUpgrade"
 
@@ -1656,7 +1648,7 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // AI1: The Shape property was added.
     // No blocks need to be modified to upgrade to version 4.
-    4: "noUpgrade",
+    4: "noUpgrade"
 
   }, // End PhoneNumberPicker upgraders
 

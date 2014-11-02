@@ -94,6 +94,14 @@ public interface OdeMessages extends Messages {
   @Description("Label of the button for removing a screen")
   String removeFormButton();
 
+  @DefaultMessage("Add Task ...")
+  @Description("Label of the button for adding a new task")
+  String addTaskButton();
+
+  @DefaultMessage("Remove Task")
+  @Description("Label of the button for removing a task")
+  String removeTaskButton();
+
   @DefaultMessage("Connect")
   @Description("Label of the button for selecting phone connection")
   String connectButton();
@@ -1162,9 +1170,17 @@ public interface OdeMessages extends Messages {
   @Description("Title of new Screen dialog.")
   String newFormTitle();
 
+  @DefaultMessage("New Task")
+  @Description("Title of new Task dialog.")
+  String newTaskTitle();
+
   @DefaultMessage("Screen name:")
   @Description("Label in front of name in new screen dialog.")
   String formNameLabel();
+
+  @DefaultMessage("Task name:")
+  @Description("Label in front of name in new task dialog.")
+  String taskNameLabel();
 
   @DefaultMessage("WARNING: The number of screens in this app might exceed the limits of App Inventor. " +
                   "Click <a target=\"_blank\" href=\"/reference/other/manyscreens.html\">here</a> for advice about " +
@@ -1182,9 +1198,22 @@ public interface OdeMessages extends Messages {
   @Description("Error shown when a new form name would be the same as an existing one")
   String duplicateFormNameError();
 
+  @DefaultMessage("Task names can contain only letters, numbers, and underscores and must " +
+      "start with a letter")
+  @Description("Error message when task name contains non-alphanumeric characters besides _")
+  String malformedTaskNameError();
+
+  @DefaultMessage("Duplicate Task name!")
+  @Description("Error shown when a new task name would be the same as an existing one")
+  String duplicateTaskNameError();
+
   @DefaultMessage("Server error: could not add form. Please try again later!")
   @Description("Error message reported when adding a form failed on the server.")
   String addFormError();
+
+  @DefaultMessage("Server error: could not add task. Please try again later!")
+  @Description("Error message reported when adding a task failed on the server.")
+  String addTaskError();
 
   // Used in explorer/commands/BuildCommand.java, and
   // explorer/commands/WaitForBuildResultCommand.java

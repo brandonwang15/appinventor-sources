@@ -368,7 +368,7 @@ public class ActivityStarter extends AndroidNonvisibleComponent
       "ActivityStarer, or an empty string if no corresponding activity can be found.")
   public String ResolveActivity() {
     Intent intent = buildActivityIntent();
-    PackageManager pm = container.$context().getPackageManager();
+    PackageManager pm = ((Activity) container.$context()).getPackageManager();
     ResolveInfo resolveInfo = pm.resolveActivity(intent, 0);
     if (resolveInfo != null && resolveInfo.activityInfo != null) {
       return resolveInfo.activityInfo.name;
@@ -395,9 +395,9 @@ public class ActivityStarter extends AndroidNonvisibleComponent
     }
 
     try {
-      container.$context().startActivityForResult(intent, requestCode);
+      ((Activity) container.$context()).startActivityForResult(intent, requestCode);
       String openAnim = container.$form().getOpenAnimType();
-      AnimationUtil.ApplyOpenScreenAnimation(container.$context(), openAnim);
+      AnimationUtil.ApplyOpenScreenAnimation(((Activity) container.$context()), openAnim);
     } catch (ActivityNotFoundException e) {
       form.dispatchErrorOccurredEvent(this, "StartActivity",
           ErrorMessages.ERROR_ACTIVITY_STARTER_NO_CORRESPONDING_ACTIVITY);

@@ -392,50 +392,55 @@ public final class Compiler {
 
       for (Project.SourceDescriptor source : project.getSources()) {
         String formClassName = source.getQualifiedName();
-        // String screenName = formClassName.substring(formClassName.lastIndexOf('.') + 1);
-        boolean isMain = formClassName.equals(mainClass);
 
-        if (isMain) {
-          // The main activity of the application.
-          out.write("    <activity android:name=\"." + className + "\" ");
-        } else {
-          // A secondary activity of the application.
-          out.write("    <activity android:name=\"" + formClassName + "\" ");
-        }
+        if (source.getType() == "Form") {
+          // String screenName = formClassName.substring(formClassName.lastIndexOf('.') + 1);
+          boolean isMain = formClassName.equals(mainClass);
 
-        // This line is here for NearField and NFC.   It keeps the activity from
-        // restarting every time NDEF_DISCOVERED is signaled.
-        // TODO:  Check that this doesn't screw up other components.  Also, it might be
-        // better to do this programmatically when the NearField component is created, rather
-        // than here in the manifest.
-        if (componentTypes.contains("NearField") && !isForCompanion && isMain) {
-          out.write("android:launchMode=\"singleTask\" ");
-        } else if (isMain && isForCompanion) {
-          out.write("android:launchMode=\"singleTop\" ");
-        }
+          if (isMain) {
+            // The main activity of the application.
+            out.write("    <activity android:name=\"." + className + "\" ");
+          } else {
+            // A secondary activity of the application.
+            out.write("    <activity android:name=\"" + formClassName + "\" ");
+          }
 
-        out.write("android:windowSoftInputMode=\"stateHidden\" ");
-        out.write("android:configChanges=\"orientation|keyboardHidden\">\n");
+          // This line is here for NearField and NFC.   It keeps the activity from
+          // restarting every time NDEF_DISCOVERED is signaled.
+          // TODO:  Check that this doesn't screw up other components.  Also, it might be
+          // better to do this programmatically when the NearField component is created, rather
+          // than here in the manifest.
+          if (componentTypes.contains("NearField") && !isForCompanion && isMain) {
+            out.write("android:launchMode=\"singleTask\" ");
+          } else if (isMain && isForCompanion) {
+            out.write("android:launchMode=\"singleTop\" ");
+          }
 
-        out.write("      <intent-filter>\n");
-        out.write("        <action android:name=\"android.intent.action.MAIN\" />\n");
-        if (isMain) {
-          out.write("        <category android:name=\"android.intent.category.LAUNCHER\" />\n");
-        }
-        out.write("      </intent-filter>\n");
+          out.write("android:windowSoftInputMode=\"stateHidden\" ");
+          out.write("android:configChanges=\"orientation|keyboardHidden\">\n");
 
-        if (componentTypes.contains("NearField") && !isForCompanion && isMain) {
-          //  make the form respond to NDEF_DISCOVERED
-          //  this will trigger the form's onResume method
-          //  For now, we're handling text/plain only,but we can add more and make the Nearfield
-          // component check the type.
           out.write("      <intent-filter>\n");
-          out.write("        <action android:name=\"android.nfc.action.NDEF_DISCOVERED\" />\n");
-          out.write("        <category android:name=\"android.intent.category.DEFAULT\" />\n");
-          out.write("        <data android:mimeType=\"text/plain\" />\n");
+          out.write("        <action android:name=\"android.intent.action.MAIN\" />\n");
+          if (isMain) {
+            out.write("        <category android:name=\"android.intent.category.LAUNCHER\" />\n");
+          }
           out.write("      </intent-filter>\n");
+
+          if (componentTypes.contains("NearField") && !isForCompanion && isMain) {
+            //  make the form respond to NDEF_DISCOVERED
+            //  this will trigger the form's onResume method
+            //  For now, we're handling text/plain only,but we can add more and make the Nearfield
+            // component check the type.
+            out.write("      <intent-filter>\n");
+            out.write("        <action android:name=\"android.nfc.action.NDEF_DISCOVERED\" />\n");
+            out.write("        <category android:name=\"android.intent.category.DEFAULT\" />\n");
+            out.write("        <data android:mimeType=\"text/plain\" />\n");
+            out.write("      </intent-filter>\n");
+          }
+          out.write("    </activity>\n");
+        } else if (source.getType() == "Task") {
+          out.write("    <service android:name=\"" + formClassName + "\"></service>");
         }
-        out.write("    </activity>\n");
       }
 
       // Add ListPickerActivity to the manifest only if a ListPicker component is used in the app
@@ -789,14 +794,17 @@ public final class Compiler {
         getResource(ACRA_RUNTIME) + File.pathSeparator +
         getResource(SIMPLE_ANDROID_RUNTIME_JAR) + File.pathSeparator;
 
+
       // Add component library names to classpath
       System.out.println("Libraries Classpath, n " + librariesNeeded.size());
       for (String library : librariesNeeded) {
         classpath += getResource(RUNTIME_FILES_DIR + library) + File.pathSeparator;
       }
 
+
       classpath +=
         getResource(ANDROID_RUNTIME);
+
 
       System.out.println("Libraries Classpath = " + classpath);
 

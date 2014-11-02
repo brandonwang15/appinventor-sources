@@ -79,10 +79,11 @@ import com.google.appinventor.components.runtime.util.SdkLevel;
     iconName = "images/notifier.png")
 @SimpleObject
 
-public final class Notifier extends AndroidNonvisibleComponent implements Component {
+public final class Notifier extends AndroidNonVisibleTaskComponent implements Component {
 
   private static final String LOG_TAG = "Notifier";
   private final Activity activity;
+  private final ComponentContainer container;
   private final Handler handler;
 
   //Length of Notifier message display
@@ -100,8 +101,9 @@ public final class Notifier extends AndroidNonvisibleComponent implements Compon
    * @param container the enclosing component
    */
   public Notifier (ComponentContainer container) {
-    super(container.$form());
-    activity = container.$context();
+    super(container);
+    activity = (Activity) form;
+    this.container = container;
     handler = new Handler();
   }
 

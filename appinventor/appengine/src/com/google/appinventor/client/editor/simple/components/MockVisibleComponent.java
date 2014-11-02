@@ -100,6 +100,11 @@ public abstract class MockVisibleComponent extends MockComponent {
     return true;
   }
 
+  @Override
+  public final boolean isTaskComponent() {
+    return false;
+  }
+
   private void setVisibleProperty(String text) {
     boolean visible = Boolean.parseBoolean(text);
     if (!visible && !editor.isLoadComplete()) {

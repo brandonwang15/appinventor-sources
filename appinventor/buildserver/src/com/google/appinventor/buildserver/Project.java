@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -36,9 +38,13 @@ public final class Project {
     // File descriptor for the source
     private final File file;
 
-    private SourceDescriptor(String qualifiedName, File file) {
+    // Get source type
+    private final String type;
+
+    private SourceDescriptor(String qualifiedName, File file, String type) {
       this.qualifiedName = qualifiedName;
       this.file = file;
+      this.type = type;
     }
 
     /**
@@ -57,6 +63,15 @@ public final class Project {
      */
     public File getFile() {
       return file;
+    }
+
+    /**
+    * Returns the type of the Source File
+    *
+    * @return type
+    */
+    public String getType() {
+      return type;
     }
   }
 
@@ -303,20 +318,49 @@ public final class Project {
    * source files.
    */
   private void visitSourceDirectories(String root, File file) {
-    if (file.isDirectory()) {
-      // Recursively visit nested directories.
-      for (String child : file.list()) {
-        visitSourceDirectories(root, new File(file, child));
-      }
-    } else {
-      // Add Young Android source files to the source file list
-      if (file.getName().endsWith(YoungAndroidConstants.YAIL_EXTENSION)) {
-        String absName = file.getAbsolutePath();
-        String name = absName.substring(root.length() + 1, absName.length() -
+    HashSet<String> screens = new HashSet<String>();
+    HashSet<String> tasks = new HashSet<String>();
+    List<File> yail = new ArrayList<File>();
+
+    for (String child : file.list()) {
+      File child_file = new File(file, child);
+      if (child_file.isDirectory()) {
+        visitSourceDirectories(root, child_file);
+      } else {
+        String absName = child_file.getAbsolutePath();
+        if (child_file.getName().endsWith(YoungAndroidConstants.FORM_PROPERTIES_EXTENSION)) {
+          String name = absName.substring(root.length() + 1, absName.length() -
+            YoungAndroidConstants.FORM_PROPERTIES_EXTENSION.length());
+          screens.add(name);
+        } else if (child_file.getName().endsWith(YoungAndroidConstants.TASK_PROPERTIES_EXTENSION)) {
+          String name = absName.substring(root.length() + 1, absName.length() -
+            YoungAndroidConstants.TASK_PROPERTIES_EXTENSION.length());
+          tasks.add(name);
+        } else if (child_file.getName().endsWith(YoungAndroidConstants.YAIL_EXTENSION)) {
+          String name = absName.substring(root.length() + 1, absName.length() -
             YoungAndroidConstants.YAIL_EXTENSION.length());
-        sources.add(new SourceDescriptor(name.replace(File.separatorChar, '.'), file));
+          if (screens.contains(name)) {
+            sources.add(new SourceDescriptor(name.replace(File.separatorChar, '.'), child_file, "Form"));
+          } else if (tasks.contains(name)) {
+            sources.add(new SourceDescriptor(name.replace(File.separatorChar, '.'), child_file, "Task"));
+          } else {
+            yail.add(child_file);
+          }
+        }
       }
     }
+
+    for (File yail_file : yail) {
+      String absName = yail_file.getAbsolutePath();
+      String name = absName.substring(root.length() + 1, absName.length() -
+        YoungAndroidConstants.YAIL_EXTENSION.length());
+      if (screens.contains(name)) {
+        sources.add(new SourceDescriptor(name.replace(File.separatorChar, '.'), yail_file, "Form"));
+      } else if (tasks.contains(name)){
+        sources.add(new SourceDescriptor(name.replace(File.separatorChar, '.'), yail_file, "Task"));
+      }
+    }
+
   }
 
   /**

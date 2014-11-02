@@ -87,7 +87,7 @@ Blockly.ReplMgr.buildYail = function() {
             code.push(Blockly.Yail.getComponentRenameString("Screen1", formName));
         var sourceType = jsonObject.Source;
         if (sourceType == "Form") {
-            code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, null /*parent*/, componentMap, true /* forRepl */));
+            code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, "Form", null /*parent*/, componentMap, true /* forRepl */));
         } else {
             throw "Source type " + sourceType + " is invalid.";
         }
@@ -137,7 +137,7 @@ Blockly.ReplMgr.buildYail = function() {
             block.type != "procedures_defnoreturn" &&
             block.type != "procedures_defreturn")
             continue;
-        var tempyail = Blockly.Yail.blockToCode(block);
+        var tempyail = Blockly.Yail.blockToCodeContext(block, "Form");
         if (phoneState.blockYail[block.id] != tempyail) { // Only send changed yail
             this.putYail(tempyail, block, success, failure);
             phoneState.blockYail[block.id] = tempyail;
@@ -150,18 +150,119 @@ Blockly.ReplMgr.buildYail = function() {
     }
 };
 
-Blockly.ReplMgr.sendFormData = function(formJson, packageName) {
+Blockly.ReplMgr.buildTaskYail = function() {
+    var phoneState;
+    var code = [];
+    var blocks;
+    var block;
+    var needinitialize = false;
+    if (!window.parent.ReplState.phoneState) { // If there is no phone state, make some!
+        window.parent.ReplState.phoneState = {};
+    }
+    phoneState = window.parent.ReplState.phoneState;
+    if (!phoneState.formJson || !phoneState.packageName)
+        return;                 // Nothing we can do without these
+    if (!phoneState.initialized) {
+        phoneState.initialized = true;
+        phoneState.blockYail = {};
+        phoneState.componentYail = "";
+    }
+    var jsonObject = JSON.parse(phoneState.formJson);
+    var formProperties;
+    var formName;
+    if (jsonObject.Properties) {
+        formProperties = jsonObject.Properties;
+        formName = formProperties.$Name;
+    }
+    var componentMap = Blockly.Component.buildComponentMap([], [], false, false);
+    var componentNames = [];
+    for (var comp in componentMap.components)
+        componentNames.push(comp);
+    if (formProperties) {
+        var sourceType = jsonObject.Source;
+        if (sourceType == "Task") {
+            code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, null /*parent*/, componentMap, true /* forRepl */));
+        } else {
+            throw "Source type " + sourceType + " is invalid.";
+        }
+
+        // Fetch all of the components in the form, this may result in duplicates
+        componentNames = Blockly.Yail.getDeepNames(formProperties, componentNames);
+        // Remove the duplicates
+        var uniqueNames = componentNames.filter(function(elem, pos) {
+            return componentNames.indexOf(elem) == pos;});
+        componentNames = uniqueNames;
+
+        code = code.join('\n');
+
+        if (phoneState.componentYail != code) {
+            // We need to send all of the comonent cruft (sorry)
+            needinitialize = true;
+            phoneState.blockYail = {}; // Sorry, have to send the blocks again.
+            this.putYail(code);
+            phoneState.componentYail = code;
+        }
+    }
+
+    blocks = Blockly.mainWorkspace.getTopBlocks(true);
+    var success = function() {
+        if (this.block.replError)
+            this.block.replError = null;
+        Blockly.WarningHandler.checkAllBlocksForWarningsAndErrors();
+    };
+    var failure = function(message) {
+        this.block.replError = message;
+        Blockly.WarningHandler.checkAllBlocksForWarningsAndErrors();
+    };
+
+    for (var x = 0; (block = blocks[x]); x++) {
+        if (!block.category || (block.hasError && !block.replError)) { // Don't send blocks with
+            continue;           // Errors, unless they were errors signaled by the repl
+        }
+        if (block.disabled) {   // Don't send disabled blocks
+            continue;
+        }
+        if (block.blockType != "event" &&
+            block.type != "global_declaration" &&
+            block.type != "procedures_defnoreturn" &&
+            block.type != "procedures_defreturn")
+            continue;
+        var tempyail = Blockly.Yail.blockToCodeContext(block, "Form");
+        if (phoneState.blockYail[block.id] != tempyail) { // Only send changed yail
+            this.putYail.putTaskYail(tempyail, block, success, failure);
+            phoneState.blockYail[block.id] = tempyail;
+        }
+    }
+
+    // need to do this after the blocks have been defined
+    if (needinitialize) {
+        this.putYail.putTaskYail(Blockly.Yail.getComponentInitializationString(formName, componentNames));
+    }
+};
+
+Blockly.ReplMgr.sendFormData = function(formJson, packageName, type) {
     window.parent.ReplState.phoneState.formJson = formJson;
     window.parent.ReplState.phoneState.packageName = packageName;
     var context = this;
-    var poller = function() {   // Keep track of "this"
-        context.polltimer = null;
-        return context.pollYail.call(context);
-    };
-    if (this.polltimer) {       // We have one running, punt it.
-        clearTimeout(this.polltimer);
+    if (type == "Form") {
+        var poller = function() {   // Keep track of "this"
+            context.polltimer = null;
+            return context.pollYail.call(context);
+        };
+        if (this.polltimer) {       // We have one running, punt it.
+            clearTimeout(this.polltimer);
+        }
+        this.polltimer = setTimeout(poller, 500);
+    } else {
+        // var poller = function() {   // Keep track of "this"
+        //     context.polltimer = null;
+        //     return context.pollTaskYail.call(context);
+        // };
+        // if (this.polltimer) {       // We have one running, punt it.
+        //     clearTimeout(this.polltimer);
+        // }
+        // this.polltimer = setTimeout(poller, 500);
     }
-    this.polltimer = setTimeout(poller, 500);
 };
 
 Blockly.ReplMgr.RefreshAssets = null;
@@ -187,10 +288,31 @@ Blockly.ReplMgr.pollYail = function() {
     }
 };
 
+Blockly.ReplMgr.pollTaskYail = function() {
+    try {
+        if (window === undefined)    // If window is gone, then we are a zombie timer firing
+            return;                  // in a destroyed frame.
+    } catch (err) {                  // We get an error on FireFox when window is gone.
+        return;
+    }
+    if (window.parent.ReplState.state == this.rsState.CONNECTED) {
+        this.buildTaskYail();
+    }
+    if (this.RefreshAssets === null) {
+        try {
+            this.RefreshAssets = window.parent.AssetManager_refreshAssets;
+        } catch (err) {
+        }
+    }
+    if (window.parent.ReplState.state == this.rsState.CONNECTED) {
+        this.RefreshAssets(this.formName);
+    }
+};
+
 Blockly.ReplMgr.resetYail = function(code) {
     window.parent.ReplState.phoneState.initialized = false; // so running io stops
     this.putYail.reset();
-    window.parent.ReplState.phoneState = { "phoneQueue" : []};
+    window.parent.ReplState.phoneState = { "phoneQueue" : [], "taskQueue" : []};
 };
 
 // Theory of Operation
@@ -236,6 +358,31 @@ Blockly.ReplMgr.putYail = (function() {
             if (!rs.phoneState.ioRunning) {
                 rs.phoneState.ioRunning = true;
                 engine.pollphone(); // Trigger callback side
+            }
+        },
+        'putTaskYail' : function(code, block, success, failure) {
+            rs = window.parent.ReplState;
+            context = this;
+            if (rs === undefined || rs === null) {
+                console.log('putTaskYail: replState not set yet.');
+                return;
+            }
+            if (rs.state != Blockly.ReplMgr.rsState.CONNECTED) {
+                console.log('putTaskYail: phone not connected');
+                return;
+            }
+            if (!rs.phoneState.taskQueue) {
+                rs.phoneState.taskQueue = [];
+            }
+            rs.phoneState.taskQueue.push({
+                'code' : Blockly.ReplMgr.quoteUnicode(code), // Deal with unicode characters and kawa
+                'success' : success,
+                'failure' : failure,
+                'block' : block
+            });
+            if (!rs.phoneState.ioRunning) {
+                rs.phoneState.ioRunning = true;
+                engine.pollphonetask(); // Trigger callback side
             }
         },
         'pollphone' : function() {
@@ -298,6 +445,60 @@ Blockly.ReplMgr.putYail = (function() {
             var stuff = encoder.toString();
             conn.send(stuff);
         },
+        'pollphonetask' : function() {
+
+            var work = rs.phoneState.taskQueue.shift();
+            if (!work) {
+                rs.phoneState.ioRunning = false;
+                return;
+            }
+            var encoder = new goog.Uri.QueryData();
+            conn = goog.net.XmlHttp();
+            var blockid;
+            if (work.block) {
+                blockid = work.block.id;
+            } else {
+                blockid = "-1";
+            }
+
+            conn.open('POST', rs.turl, true);
+            conn.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var json = goog.json.parse(this.response);
+                    if (json.status != 'OK') {
+                        if (work.failure)
+                            work.failure(Blockly.Msg.REPL_ERROR_FROM_COMPANION);
+                    } else {
+                        if (work.success)
+                            work.success();
+                    }
+                    context.processRetvals(json.values);
+                    rs.seq_count += 1;
+                    if (rs.phoneState.initialized) // Only continue if we are still initialized
+                        engine.pollphonetask(); // And on to the next!
+                } else {
+                    if (this.readyState == 4) {
+                        console.log("putTaskYail(poller): status = " + this.status);
+                        if (work.failure) {
+                            work.failure(Blockly.Msg.REPL_NETWORK_CONNECTION_ERROR);
+                        }
+                        var dialog = new Blockly.ReplMgr.Dialog(Blockly.Msg.REPL_NETWORK_ERROR, Blockly.Msg.REPL_NETWORK_ERROR_RESTART, Blockly.Msg.REPL_OK, null, 0,
+                            function() {
+                                dialog.hide();
+                                context.hardreset(context.formName);
+                            });
+                        engine.resetcompanion();
+                    }
+                }
+
+            };
+            encoder.add('mac', Blockly.ReplMgr.hmac(work.code + rs.seq_count + blockid));
+            encoder.add('seq', rs.seq_count);
+            encoder.add('code', work.code);
+            encoder.add('blockid', blockid);
+            var stuff = encoder.toString();
+            conn.send(stuff);            
+        },
         'doversioncheck' : function() {
             var conn = goog.net.XmlHttp();
             conn.open('GET', rs.versionurl, true);
@@ -330,12 +531,10 @@ Blockly.ReplMgr.putYail = (function() {
         },
         "receivefromphone" : function() {
             phonereceiving = true;
-            console.log("receivefromphone called.");
             rxhr = goog.net.XmlHttp();
             rxhr.open('POST', rs.rurl, true); // We post to avoid caching issues
             rxhr.onreadystatechange = function() {
                 if (this.readyState != 4) return;
-                console.log("receivefromphone returned.");
                 if (this.status == 200) {
                     var json = goog.json.parse(this.response);
                     if (json.status == 'OK') {
@@ -356,7 +555,6 @@ Blockly.ReplMgr.putYail = (function() {
             phonereceiving = false;
         },
         "resetcompanion" : function() {
-            console.log("reseting companion");
             rs.state = Blockly.ReplMgr.rsState.IDLE;
             rs.connection = null;
             context.resetYail();
@@ -397,6 +595,7 @@ Blockly.ReplMgr.putYail = (function() {
         }
     };
     engine.putYail.reset = engine.reset;
+    engine.putYail.putTaskYail = engine.putTaskYail;
     return engine.putYail;
 })();
 
@@ -817,6 +1016,7 @@ Blockly.ReplMgr.startRepl = function(already, emulator, usb) {
             rs.state = this.rsState.WAITING; // Wait for the emulator to start
             rs.replcode = "emulator";          // Must match code in Companion Source
             rs.url = 'http://127.0.0.1:8001/_newblocks';
+            rs.turl = 'http://127.0.0.1:8001/_newtaskblocks'
             rs.rurl = 'http://127.0.0.1:8001/_values';
             rs.versionurl = 'http://127.0.0.1:8001/_getversion';
             rs.baseurl = 'http://127.0.0.1:8001/';
@@ -876,6 +1076,7 @@ Blockly.ReplMgr.getFromRendezvous = function() {
             try {
                 var json = goog.json.parse(xmlhttp.response);
                 rs.url = 'http://' + json.ipaddr + ':8001/_newblocks';
+                rs.turl = 'http://' + json.ipaddr + ':8001/_newtaskblocks';
                 rs.rurl = 'http://' + json.ipaddr + ':8001/_values';
                 rs.versionurl = 'http://' + json.ipaddr + ':8001/_getversion';
                 rs.baseurl = 'http://' + json.ipaddr + ':8001/';

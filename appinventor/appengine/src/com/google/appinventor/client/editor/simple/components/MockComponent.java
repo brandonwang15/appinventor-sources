@@ -546,11 +546,15 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    *
    * @return  containing form
    */
-  public MockForm getForm() {
+  public MockTopLevelContainer getForm() {
     return getContainer().getForm();
   }
 
   public boolean isForm() {
+    return false;
+  }
+
+  public boolean isTask() {
     return false;
   }
 
@@ -563,6 +567,8 @@ public abstract class MockComponent extends Composite implements PropertyChangeL
    *          component, otherwise {@code false}
    */
   public abstract boolean isVisibleComponent();
+
+  public abstract boolean isTaskComponent();
 
   /**
    * Selects this component in the visual editor.

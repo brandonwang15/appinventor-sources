@@ -150,7 +150,7 @@ public class GameClient extends AndroidNonvisibleComponent
     // only one UI thread in an Android app and posting to this
     // handler queues up a Runnable for execution on that thread.
     androidUIHandler = new Handler();
-    activityContext = container.$context();
+    activityContext = (Activity) container.$context();
     form.registerForOnResume(this);
     form.registerForOnStop(this);
     gameId = "";

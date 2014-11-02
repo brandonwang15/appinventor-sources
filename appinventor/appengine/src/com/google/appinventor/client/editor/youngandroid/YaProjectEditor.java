@@ -13,6 +13,7 @@ import com.google.appinventor.client.boxes.AssetListBox;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.ProjectEditor;
 import com.google.appinventor.client.editor.ProjectEditorFactory;
+import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.appinventor.client.explorer.project.Project;
 import com.google.appinventor.client.explorer.project.ProjectChangeListener;
 import com.google.appinventor.client.output.OdeLog;
@@ -20,6 +21,7 @@ import com.google.appinventor.shared.rpc.project.ProjectNode;
 import com.google.appinventor.shared.rpc.project.ProjectRootNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidBlocksNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidFormNode;
+import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidTaskNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidSourceNode;
 import com.google.appinventor.shared.storage.StorageUtil;
 import com.google.appinventor.shared.youngandroid.YoungAndroidSourceAnalyzer;
@@ -48,6 +50,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
   // editor for the textual representation of the program logic.
   private class EditorSet {
     YaFormEditor formEditor = null;
+    YaTaskEditor taskEditor = null;
     YaBlocksEditor blocksEditor = null;
   }
 
@@ -124,6 +127,8 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
     for (ProjectNode source : projectRootNode.getAllSourceNodes()) {
       if (source instanceof YoungAndroidFormNode) {
         addFormEditor((YoungAndroidFormNode) source);
+      } else if (source instanceof YoungAndroidTaskNode) {
+        addTaskEditor((YoungAndroidTaskNode) source);
       } 
     }
     for (ProjectNode source : projectRootNode.getAllSourceNodes()) {
@@ -147,8 +152,9 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
                 formName, DesignToolbar.View.FORM);
           }
         }
-      } else if (editors.formEditor == null) {
-        OdeLog.wlog("Missing form editor for " + formName);
+      } else if (editors.taskEditor != null && editors.blocksEditor != null) {
+        designToolbar.addTask(projectRootNode.getProjectId(), formName, editors.taskEditor, 
+            editors.blocksEditor);
       } else {
         OdeLog.wlog("Missing blocks editor for " + formName);
       }
@@ -172,6 +178,10 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
         YaBlocksEditor blocksEditor = (YaBlocksEditor) selectedFileEditor;
         designToolbar.switchToScreen(projectId, blocksEditor.getForm().getName(), 
             DesignToolbar.View.BLOCKS);
+      } else if (selectedFileEditor instanceof YaTaskEditor) {
+        YaTaskEditor taskEditor = (YaTaskEditor) selectedFileEditor;
+        designToolbar.switchToScreen(projectId, taskEditor.getForm().getName(),
+            DesignToolbar.View.FORM);
       } else {
         // shouldn't happen!
         OdeLog.elog("YaProjectEditor got onShow when selectedFileEditor" 
@@ -210,6 +220,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
   @Override
   public void onProjectNodeAdded(Project project, ProjectNode node) {
     String formName = null;
+    String taskName = null;
     if (node instanceof YoungAndroidFormNode) {
       if (getFileEditor(node.getFileId()) == null) {
         addFormEditor((YoungAndroidFormNode) node);
@@ -220,6 +231,11 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
         addBlocksEditor((YoungAndroidBlocksNode) node);
         formName = ((YoungAndroidBlocksNode) node).getFormName();
       }
+    } else if (node instanceof YoungAndroidTaskNode) {
+      if (getFileEditor(node.getFileId()) == null) {
+        addTaskEditor((YoungAndroidTaskNode) node);
+        taskName = ((YoungAndroidTaskNode) node).getFormName();
+      }
     }
     if (formName != null) {
       // see if we have both editors yet
@@ -228,6 +244,13 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
         Ode.getInstance().getDesignToolbar().addScreen(node.getProjectId(), formName, 
             editors.formEditor, editors.blocksEditor);
       }
+    }
+    if (taskName != null) {
+      EditorSet editors = editorMap.get(taskName);
+      if (editors.taskEditor != null && editors.blocksEditor != null) {
+        Ode.getInstance().getDesignToolbar().addTask(node.getProjectId(), taskName, 
+            editors.taskEditor, editors.blocksEditor);
+      }      
     }
   }
 
@@ -262,9 +285,14 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
   /* 
    * Returns the YaFormEditor for the given form name in this project
    */
-  public YaFormEditor getFormFileEditor(String formName) {
+  public SimpleEditor getFormFileEditor(String formName) {
     if (editorMap.containsKey(formName)) {
-      return editorMap.get(formName).formEditor;
+      EditorSet editors = editorMap.get(formName);
+      if (editors.formEditor != null) {
+        return editors.formEditor;
+      } else {
+        return editors.taskEditor;
+      }
     } else {
       return null;
     }
@@ -279,8 +307,10 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
     return new Comparator<String>() {
       @Override
       public int compare(String fileId1, String fileId2) {
-        boolean isForm1 = fileId1.endsWith(YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION);
-        boolean isForm2 = fileId2.endsWith(YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION);
+        boolean isForm1 = fileId1.endsWith(YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION) ||
+                            fileId1.endsWith(YoungAndroidSourceAnalyzer.TASK_PROPERTIES_EXTENSION);
+        boolean isForm2 = fileId2.endsWith(YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION) ||
+                            fileId2.endsWith(YoungAndroidSourceAnalyzer.TASK_PROPERTIES_EXTENSION);
 
         // Give priority to screen1.
         if (YoungAndroidSourceNode.isScreen1(fileId1)) {
@@ -320,7 +350,7 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
   private void addFormEditor(YoungAndroidFormNode formNode) {
     final YaFormEditor newFormEditor = new YaFormEditor(this, formNode);
     final String formName = formNode.getFormName();
-    OdeLog.log("Adding form editor for " + formName);
+    OdeLog.log("Adding form editor for " + formName + " " + editorMap.keySet() + "!!!");
     if (editorMap.containsKey(formName)) {
       // This happens if the blocks editor was already added.
       editorMap.get(formName).formEditor = newFormEditor;
@@ -350,6 +380,33 @@ public final class YaProjectEditor extends ProjectEditor implements ProjectChang
         loadBlocksEditor(formName);
       }
     });
+  }
+
+  private void addTaskEditor(YoungAndroidTaskNode taskNode) {
+    final YaTaskEditor newTaskEditor = new YaTaskEditor(this, taskNode);
+    final String formName = taskNode.getFormName();
+    if (editorMap.containsKey(formName)) {
+      // This happens if the blocks editor was already added.
+      editorMap.get(formName).taskEditor = newTaskEditor;
+    } else {
+      EditorSet editors = new EditorSet();
+      editors.taskEditor = newTaskEditor;
+      editorMap.put(formName, editors);
+    }
+    OdeLog.log("Adding task editor for " + formName + " " + editorMap.get(formName).taskEditor);
+    newTaskEditor.loadFile(new Command() {
+      @Override
+      public void execute() {
+        int pos = Collections.binarySearch(fileIds, newTaskEditor.getFileId(),
+            getFileIdComparator());
+        OdeLog.wlog("Adding task editor " + newTaskEditor.getFileId());
+        if (pos < 0) {
+          pos = -pos - 1;
+        }
+        insertFileEditor(newTaskEditor, pos);
+        loadBlocksEditor(formName);
+      }
+    });    
   }
     
   private boolean readyToShowScreen1() {

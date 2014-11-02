@@ -124,7 +124,7 @@ public final class Player extends AndroidNonvisibleComponent
    */
   public Player(ComponentContainer container) {
     super(container.$form());
-    activity = container.$context();
+    activity = (Activity) container.$context();
     sourcePath = "";
     vibe = (Vibrator) form.getSystemService(Context.VIBRATOR_SERVICE);
     form.registerForOnDestroy(this);

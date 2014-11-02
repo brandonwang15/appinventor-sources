@@ -6,6 +6,8 @@ import com.google.appinventor.client.Images;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.TranslationDesignerPallete;
 import com.google.appinventor.client.editor.simple.components.MockForm;
+import com.google.appinventor.client.editor.simple.components.MockTask;
+import com.google.appinventor.client.editor.simple.components.MockContainer;
 import com.google.appinventor.client.editor.youngandroid.BlockDrawerSelectionListener;
 import com.google.appinventor.client.explorer.SourceStructureExplorer;
 import com.google.appinventor.client.explorer.SourceStructureExplorerItem;
@@ -189,9 +191,13 @@ public final class BlockSelectorBox extends Box {
    *          only component types that appear in this Form will be included
    * @return tree item for this form
    */
-  public TreeItem getGenericComponentsTree(MockForm form) {
+  public TreeItem getGenericComponentsTree(MockContainer form) {
     Map<String, String> typesAndIcons = Maps.newHashMap();
-    form.collectTypesAndIcons(typesAndIcons);
+    if (form instanceof MockForm) {
+      ((MockForm) form).collectTypesAndIcons(typesAndIcons);
+    } else if (form instanceof MockTask) {
+      ((MockTask ) form).collectTypesAndIcons(typesAndIcons);
+    }
     TreeItem advanced = new TreeItem(new HTML("<span>" + MESSAGES.anyComponentLabel() + "</span>"));
     List<String> typeList = new ArrayList<String>(typesAndIcons.keySet());
     Collections.sort(typeList);

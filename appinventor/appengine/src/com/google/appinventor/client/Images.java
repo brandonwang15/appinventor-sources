@@ -166,6 +166,12 @@ public interface Images extends Resources {
   ImageResource orientationsensor();
 
   /**
+  * Designer palette item: Notifications component
+  */
+  @Source("com/google/appinventor/images/notification.png")
+  ImageResource notificationComponent();
+
+  /**
    * Designer palette item: player component
    */
   @Source("com/google/appinventor/images/player.png")
@@ -398,6 +404,12 @@ public interface Images extends Resources {
    */
   @Source("com/google/appinventor/images/fusiontables.png")
   ImageResource fusiontables();
+
+  /**
+   * Designer palette item: FusiontablesControl component
+   */
+  @Source("com/google/appinventor/images/applicationMessenger.png")
+  ImageResource applicationMessenger();
 
   /**
    * Designer palette item: WebViewer component

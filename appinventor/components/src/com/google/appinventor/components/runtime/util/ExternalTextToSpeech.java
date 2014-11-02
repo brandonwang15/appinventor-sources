@@ -55,7 +55,7 @@ public class ExternalTextToSpeech implements ITextToSpeech, ActivityResultListen
     if (requestCode == 0) {
       requestCode = container.$form().registerForActivityResult(this);
     }
-    container.$context().startActivityForResult(intent, requestCode);
+    ((Activity) container.$context()).startActivityForResult(intent, requestCode);
   }
 
   @Override

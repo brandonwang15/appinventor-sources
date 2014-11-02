@@ -26,7 +26,10 @@ Blockly.Yail['math_compare'] = function() {
   var order = prim[2];
   var argument0 = Blockly.Yail.valueToCode(this, 'A', order) || 0;
   var argument1 = Blockly.Yail.valueToCode(this, 'B', order) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator1
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator1
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -56,7 +59,10 @@ Blockly.Yail['math_arithmetic'] = function(mode,block) {
   var order = tuple[1]; 
   var argument0 = Blockly.Yail.valueToCode(block, 'A', order) || 0;
   var argument1 = Blockly.Yail.valueToCode(block, 'B', order) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + block.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -97,8 +103,12 @@ Blockly.Yail['math_arithmetic_list'] = function(mode,block) {
   var tuple = Blockly.Yail.math_arithmetic.OPERATORS[mode];
   var operator = tuple[0];
   var order = tuple[1];
+  console.log("MATH arithmetic " + block.context);
 
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + block.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
@@ -134,7 +144,10 @@ Blockly.Yail['math_single'] = function() {
   var operator2 = tuple[1];
   var order = tuple[2];
   var argument = Blockly.Yail.valueToCode(this, 'NUM', order) || 1;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator1
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator1
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -185,7 +198,10 @@ Blockly.Yail['math_random_int'] = function() {
     Blockly.Yail.ORDER_NONE) || 0;
   var argument1 = Blockly.Yail.valueToCode(this, 'TO',
     Blockly.Yail.ORDER_NONE) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "random-integer"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "random-integer"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -201,7 +217,10 @@ Blockly.Yail['math_random_int'] = function() {
 
 Blockly.Yail['math_random_float'] = function() {
   // Random fraction between 0 and 1.
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "random-fraction"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "random-fraction"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + 
   Blockly.Yail.YAIL_CLOSE_COMBINATION + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + 
@@ -215,7 +234,10 @@ Blockly.Yail['math_random_float'] = function() {
 Blockly.Yail['math_random_set_seed'] = function() {
   // Basic is_a_number.
   var argument = Blockly.Yail.valueToCode(this, 'NUM', Blockly.Yail.ORDER_NONE) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "random-set-seed"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "random-set-seed"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -240,7 +262,10 @@ Blockly.Yail['math_on_list'] = function() {
     args += (Blockly.Yail.valueToCode(this, 'NUM' + i, order) || 0) + Blockly.Yail.YAIL_SPACER;
     typeString += "number" + Blockly.Yail.YAIL_SPACER;
   }
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -267,7 +292,10 @@ Blockly.Yail['math_divide'] = function() {
   var order = tuple[1]; 
   var argument0 = Blockly.Yail.valueToCode(this, 'DIVIDEND', order) || 0;
   var argument1 = Blockly.Yail.valueToCode(this, 'DIVISOR', order) || 1;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -295,7 +323,10 @@ Blockly.Yail['math_trig'] = function() {
   var operator2 = tuple[0];
   var order = tuple[2];
   var argument = Blockly.Yail.valueToCode(this, 'NUM', order) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator1
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator1
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -329,7 +360,10 @@ Blockly.Yail['math_atan2'] = function() {
   // atan2 operators.
   var argument0 = Blockly.Yail.valueToCode(this, 'Y', Blockly.Yail.ORDER_NONE) || 1;
   var argument1 = Blockly.Yail.valueToCode(this, 'X', Blockly.Yail.ORDER_NONE) || 1;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "atan2-degrees"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "atan2-degrees"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -351,7 +385,10 @@ Blockly.Yail['math_convert_angles'] = function() {
   var operator2 = tuple[1];
   var order = tuple[2];
   var argument = Blockly.Yail.valueToCode(this, 'NUM', order) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + operator1
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + operator1
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -373,7 +410,10 @@ Blockly.Yail['math_format_as_decimal'] = function() {
   // format_as_decimal.
   var argument0 = Blockly.Yail.valueToCode(this, 'NUM', Blockly.Yail.ORDER_NONE) || 0;
   var argument1 = Blockly.Yail.valueToCode(this, 'PLACES', Blockly.Yail.ORDER_NONE) || 0;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "format-as-decimal"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "format-as-decimal"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -390,7 +430,10 @@ Blockly.Yail['math_format_as_decimal'] = function() {
 Blockly.Yail['math_is_a_number'] = function() {
   // Basic is_a_number.
   var argument = Blockly.Yail.valueToCode(this, 'NUM', Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "is-number?"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "is-number?"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER

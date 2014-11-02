@@ -248,6 +248,8 @@ public class Ode implements EntryPoint {
 
   private boolean screensLocked;
 
+  private boolean taskExists;
+
   /**
    * Returns global instance of Ode.
    *
@@ -1860,6 +1862,14 @@ public class Ode implements EntryPoint {
       OdeLog.log("Unlocking Screens");
     }
     screensLocked = value;
+  }
+
+  public boolean taskExists() {
+    return taskExists;
+  }
+
+  public void setTaskExists(boolean value) {
+    taskExists = value;
   }
 
   // Native code to set the top level rendezvousServer variable

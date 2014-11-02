@@ -12,9 +12,11 @@ import com.google.appinventor.client.boxes.BlockSelectorBox;
 import com.google.appinventor.client.boxes.PaletteBox;
 import com.google.appinventor.client.editor.FileEditor;
 import com.google.appinventor.client.editor.simple.SimpleComponentDatabase;
+import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.appinventor.client.editor.simple.components.FormChangeListener;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
 import com.google.appinventor.client.editor.simple.components.MockForm;
+import com.google.appinventor.client.editor.simple.components.MockTopLevelContainer;
 import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.youngandroid.palette.YoungAndroidPalettePanel;
 import com.google.appinventor.client.explorer.SourceStructureExplorer;
@@ -98,11 +100,14 @@ public final class YaBlocksEditor extends FileEditor
   // blocks area again.
   private Set<String> componentUuids = new HashSet<String>();
 
-  // The form editor associated with this blocks editor
-  private YaFormEditor myFormEditor;
+  // The form or task editor associated with this blocks editor
+  private SimpleEditor myFormEditor;
 
   // Used to determine if the newly generated yail should be sent to the debugging phone
   private String lastYail = "";
+
+  // Used to determine if this blocks panel is for a form or a task
+  public boolean isForm = true;
 
   //Timer used to poll blocks editor to check if it is initialized
   private static Timer timer;
@@ -139,6 +144,9 @@ public final class YaBlocksEditor extends FileEditor
     // Create palettePanel, which will be used as the content of the PaletteBox.
     myFormEditor = projectEditor.getFormFileEditor(blocksNode.getFormName());
     if (myFormEditor != null) {
+      if (myFormEditor instanceof YaTaskEditor) {
+        isForm = false;
+      } 
       palettePanel = new YoungAndroidPalettePanel(myFormEditor);
       palettePanel.loadComponents(new DropTargetProvider() {
         // TODO(sharon): make the tree in the BlockSelectorBox a drop target
@@ -204,7 +212,11 @@ public final class YaBlocksEditor extends FileEditor
   public void showWhenInitialized() {
     //check if blocks are initialized
     if(BlocklyPanel.blocksInited(fullFormName)) {
-      blocksArea.showDifferentForm(fullFormName);
+      if (isForm) {
+        blocksArea.showDifferentForm(fullFormName);
+      } else {
+        blocksArea.showTask(fullFormName);
+      }      
       loadBlocksEditor();
       sendComponentData();  // Send Blockly the component information for generating Yail
       blocksArea.renderBlockly(); //Re-render Blockly due to firefox bug
@@ -235,7 +247,7 @@ public final class YaBlocksEditor extends FileEditor
     PaletteBox.getPaletteBox().setVisible(false);
 
     // Update the source structure explorer with the tree of this form's components.
-    MockForm form = getForm();
+    MockTopLevelContainer form = getForm();
     if (form != null) {
       // start with no component selected in sourceStructureExplorer. We
       // don't want a component drawer open in the blocks editor when we
@@ -316,14 +328,19 @@ public final class YaBlocksEditor extends FileEditor
 
   public synchronized void sendComponentData() {
     try {
-      blocksArea.sendComponentData(myFormEditor.encodeFormAsJsonString(),
-        packageNameFromPath(getFileId()));
+      if (isForm) {        
+        blocksArea.sendComponentData(((YaFormEditor) myFormEditor).encodeFormAsJsonString(),
+          packageNameFromPath(getFileId()), "Form");
+      } else {
+        blocksArea.sendComponentData(((YaTaskEditor) myFormEditor).encodeFormAsJsonString(),
+          packageNameFromPath(getFileId()), "Task");
+      }
     } catch (YailGenerationException e) {
       e.printStackTrace();
     }
   }
 
-  private void updateBlocksTree(MockForm form, SourceStructureExplorerItem itemToSelect) {
+  private void updateBlocksTree(MockTopLevelContainer form, SourceStructureExplorerItem itemToSelect) {
     TreeItem items[] = new TreeItem[3];
     items[0] = BlockSelectorBox.getBlockSelectorBox().getBuiltInBlocksTree();
     items[1] = form.buildComponentsTree();
@@ -344,9 +361,15 @@ public final class YaBlocksEditor extends FileEditor
   }
 
   public FileDescriptorWithContent getYail() throws YailGenerationException {
-    return new FileDescriptorWithContent(getProjectId(), yailFileName(),
-        blocksArea.getYail(myFormEditor.encodeFormAsJsonString(),
-            packageNameFromPath(getFileId())));
+    if (isForm) {
+      return new FileDescriptorWithContent(getProjectId(), yailFileName(),
+          blocksArea.getYail(((YaFormEditor) myFormEditor).encodeFormAsJsonString(),
+              packageNameFromPath(getFileId()), "Form"));
+    } else {      
+      return new FileDescriptorWithContent(getProjectId(), yailFileName(),
+          blocksArea.getYail(((YaTaskEditor) myFormEditor).encodeFormAsJsonString(),
+              packageNameFromPath(getFileId()), "Task"));
+    }
   }
 
   /**
@@ -382,7 +405,11 @@ public final class YaBlocksEditor extends FileEditor
       //use form name to get blocks editor
       YaBlocksEditor blocksEditor = formToBlocksEditor.get(formName);
       //get type name from form editor
-      return blocksEditor.myFormEditor.getComponentInstanceTypeName(instanceName);
+      if (blocksEditor.myFormEditor instanceof YaFormEditor) {
+        return ((YaFormEditor) blocksEditor.myFormEditor).getComponentInstanceTypeName(instanceName);
+      } else {
+        return ((YaTaskEditor) blocksEditor.myFormEditor).getComponentInstanceTypeName(instanceName);
+      }
   }
 
   public void addComponent(String typeName, String instanceName, String uuid) {
@@ -449,11 +476,15 @@ public final class YaBlocksEditor extends FileEditor
     blocksArea.hideBuiltinBlocks();
   }
 
-  public MockForm getForm() {
+  public MockTopLevelContainer getForm() {
     YaProjectEditor yaProjectEditor = (YaProjectEditor) projectEditor;
-    YaFormEditor myFormEditor = yaProjectEditor.getFormFileEditor(blocksNode.getFormName());
+    SimpleEditor myFormEditor = yaProjectEditor.getFormFileEditor(blocksNode.getFormName());
     if (myFormEditor != null) {
-      return myFormEditor.getForm();
+      if (myFormEditor instanceof YaFormEditor) {
+        return ((YaFormEditor) myFormEditor).getForm();
+      } else {
+        return ((YaTaskEditor) myFormEditor).getForm();
+      }
     } else {
       return null;
     }
@@ -526,7 +557,7 @@ public final class YaBlocksEditor extends FileEditor
   }
 
   private void updateSourceStructureExplorer() {
-    MockForm form = getForm();
+    MockTopLevelContainer form = getForm();
     if (form != null) {
       updateBlocksTree(form, form.getSelectedComponent().getSourceStructureExplorerItem());
     }

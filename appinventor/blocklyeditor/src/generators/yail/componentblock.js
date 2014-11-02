@@ -153,7 +153,7 @@ Blockly.Yail.methodHelper = function(methodBlock, name, methodName, generic) {
         + Blockly.Yail.valueToCode(methodBlock, 'COMPONENT', Blockly.Yail.ORDER_NONE)
         + Blockly.Yail.YAIL_SPACER;
   } else {
-    callPrefix = Blockly.Yail.YAIL_CALL_COMPONENT_METHOD; 
+    callPrefix = Blockly.Yail.YAIL_CALL_COMPONENT_METHOD;
     name = methodBlock.getFieldValue("COMPONENT_SELECTOR");
   }
 
@@ -165,6 +165,9 @@ Blockly.Yail.methodHelper = function(methodBlock, name, methodName, generic) {
   }
 
   return callPrefix
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE
+    + methodBlock.context + Blockly.Yail.YAIL_DOUBLE_QUOTE
+    + Blockly.Yail.YAIL_SPACER
     + Blockly.Yail.YAIL_QUOTE
     + name 
     + Blockly.Yail.YAIL_SPACER
@@ -211,7 +214,8 @@ Blockly.Yail.setproperty = function() {
   var propType = this.getPropertyObject(propertyName).type
   var assignLabel = Blockly.Yail.YAIL_QUOTE + this.getFieldValue("COMPONENT_SELECTOR") + Blockly.Yail.YAIL_SPACER
     + Blockly.Yail.YAIL_QUOTE + propertyName;
-  var code = Blockly.Yail.YAIL_SET_AND_COERCE_PROPERTY + assignLabel + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_SET_AND_COERCE_PROPERTY + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context +
+        Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + assignLabel + Blockly.Yail.YAIL_SPACER;
   // TODO(hal, andrew): check for empty socket and generate error if necessary
   code = code.concat(Blockly.Yail.valueToCode(this, 'VALUE', Blockly.Yail.ORDER_NONE /*TODO:?*/));
   code = code.concat(Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE
@@ -233,6 +237,8 @@ Blockly.Yail.genericSetproperty = function() {
   var assignLabel = Blockly.Yail.YAIL_QUOTE + this.typeName + Blockly.Yail.YAIL_SPACER
     + Blockly.Yail.YAIL_QUOTE + propertyName;
   var code = Blockly.Yail.YAIL_SET_AND_COERCE_COMPONENT_TYPE_PROPERTY
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context +
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
     // TODO(hal, andrew): check for empty socket and generate error if necessary
     + Blockly.Yail.valueToCode(this, 'COMPONENT', Blockly.Yail.ORDER_NONE)
     + Blockly.Yail.YAIL_SPACER
@@ -258,6 +264,8 @@ Blockly.Yail.getproperty = function(instanceName) {
   var propertyName = this.getFieldValue("PROP");
   var propType = this.getPropertyObject(propertyName).type;
   var code = Blockly.Yail.YAIL_GET_PROPERTY
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
     + Blockly.Yail.YAIL_QUOTE
     + this.getFieldValue("COMPONENT_SELECTOR")
     + Blockly.Yail.YAIL_SPACER
@@ -280,6 +288,8 @@ Blockly.Yail.genericGetproperty = function(typeName) {
   var propertyName = this.getFieldValue("PROP");
   var propType = this.getPropertyObject(propertyName).type;
   var code = Blockly.Yail.YAIL_GET_COMPONENT_TYPE_PROPERTY
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context +
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
     // TODO(hal, andrew): check for empty socket and generate error if necessary
     + Blockly.Yail.valueToCode(this, 'COMPONENT', Blockly.Yail.ORDER_NONE)
     + Blockly.Yail.YAIL_SPACER
@@ -303,6 +313,7 @@ Blockly.Yail.genericGetproperty = function(typeName) {
  * @returns {Function} component getter code generation function with instanceName bound in
  */
 Blockly.Yail.component_component_block = function() {
-  return [Blockly.Yail.YAIL_GET_COMPONENT + this.getFieldValue("COMPONENT_SELECTOR") + Blockly.Yail.YAIL_CLOSE_COMBINATION,
-          Blockly.Yail.ORDER_ATOMIC];
+  return [Blockly.Yail.YAIL_GET_COMPONENT + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context +
+    Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + this.getFieldValue("COMPONENT_SELECTOR") +
+    Blockly.Yail.YAIL_CLOSE_COMBINATION, Blockly.Yail.ORDER_ATOMIC];
 }

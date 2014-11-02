@@ -51,7 +51,7 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
   */
   public HVArrangement(ComponentContainer container, int orientation) {
     super(container);
-    context = container.$context();
+    context = (Activity) container.$context();
 
     this.orientation = orientation;
     viewLayout = new LinearLayout(context, orientation,
@@ -77,6 +77,11 @@ public class HVArrangement extends AndroidViewComponent implements Component, Co
   @Override
   public Form $form() {
     return container.$form();
+  }
+
+  @Override
+  public Task $task() {
+    return null;
   }
 
   @Override

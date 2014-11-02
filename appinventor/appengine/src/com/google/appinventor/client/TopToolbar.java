@@ -796,7 +796,12 @@ public class TopToolbar extends Composite {
       return;
     }
     DesignToolbar.Screen screen = currentProject.screens.get(currentProject.currentScreen);
-    screen.blocksEditor.startRepl(!start, forEmulator, forUsb);
+    if (screen != null) {
+      screen.blocksEditor.startRepl(!start, forEmulator, forUsb);
+    } else {
+      DesignToolbar.Task task = currentProject.tasks.get(currentProject.currentScreen);
+      task.blocksEditor.startRepl(!start, forEmulator,forUsb);
+    }
     if (start) {
       if (forEmulator) {        // We are starting the emulator...
         updateConnectToDropDownButton(true, false, false);

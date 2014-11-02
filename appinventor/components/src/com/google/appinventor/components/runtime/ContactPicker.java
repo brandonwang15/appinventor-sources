@@ -91,7 +91,7 @@ public class ContactPicker extends Picker implements ActivityResultListener {
 
   protected ContactPicker(ComponentContainer container, Uri intentUri) {
     super(container);
-    activityContext = container.$context();
+    activityContext = (Activity) container.$context();
 
     if (SdkLevel.getLevel() >= SdkLevel.LEVEL_HONEYCOMB && intentUri.equals(Contacts.People.CONTENT_URI)) {
       this.intentUri = HoneycombUtil.getContentUri();

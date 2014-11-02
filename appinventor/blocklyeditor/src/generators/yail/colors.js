@@ -70,9 +70,12 @@ Blockly.Yail['color_yellow'] = function() {
 };
 
 Blockly.Yail['color_make_color'] = function() {
-  var blackList = "(call-yail-primitive make-yail-list (*list-for-runtime* 0 0 0)  '( any any any)  \"make a list\")";
+  var blackList = "(call-yail-primitive \"Form\" make-yail-list (*list-for-runtime* 0 0 0)  '( any any any)  \"make a list\")";
   var argument0 = Blockly.Yail.valueToCode(this, 'COLORLIST', Blockly.Yail.ORDER_NONE) || blackList;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "make-color" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE 
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "make-color" + Blockly.Yail.YAIL_SPACER;
   code += Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
       + argument0 + Blockly.Yail.YAIL_CLOSE_COMBINATION;
@@ -86,7 +89,10 @@ Blockly.Yail['color_make_color'] = function() {
 
 Blockly.Yail['color_split_color'] = function() {
   var argument0 = Blockly.Yail.valueToCode(this, 'COLOR', Blockly.Yail.ORDER_NONE) || -1;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "split-color" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "split-color" + Blockly.Yail.YAIL_SPACER;
   code += Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
       + argument0 + Blockly.Yail.YAIL_CLOSE_COMBINATION;

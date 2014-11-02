@@ -15,7 +15,9 @@ import com.google.appinventor.client.editor.simple.palette.DropTargetProvider;
 import com.google.appinventor.client.editor.simple.palette.SimpleComponentDescriptor;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.editor.simple.palette.SimplePalettePanel;
+import com.google.appinventor.client.editor.simple.SimpleEditor;
 import com.google.appinventor.client.editor.youngandroid.YaFormEditor;
+import com.google.appinventor.client.editor.youngandroid.YaTaskEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidAccelerometerSensitivityChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidAlignmentChoicePropertyEditor;
 import com.google.appinventor.client.editor.youngandroid.properties.YoungAndroidAssetSelectorPropertyEditor;
@@ -66,7 +68,7 @@ public class YoungAndroidPalettePanel extends Composite implements SimplePalette
     SimpleComponentDatabase.getInstance();
 
   // Associated editor
-  private final YaFormEditor editor;
+  private final SimpleEditor editor;
 
   private final StackPanel stackPalette;
   private final Map<ComponentCategory, VerticalPanel> categoryPanels;
@@ -76,7 +78,7 @@ public class YoungAndroidPalettePanel extends Composite implements SimplePalette
    *
    * @param editor parent editor of this panel
    */
-  public YoungAndroidPalettePanel(YaFormEditor editor) {
+  public YoungAndroidPalettePanel(SimpleEditor editor) {
     this.editor = editor;
 
     stackPalette = new StackPanel();

@@ -8,7 +8,7 @@ package com.google.appinventor.client.editor.simple;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
 import com.google.appinventor.client.editor.ProjectEditor;
-import com.google.appinventor.client.editor.simple.components.MockForm;
+import com.google.appinventor.client.editor.simple.components.MockTopLevelContainer;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.widgets.dnd.DragSource;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
@@ -35,7 +35,7 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
   private final SimpleNonVisibleComponentsPanel nonVisibleComponentsPanel;
   private final ProjectEditor projectEditor;
 
-  private MockForm form;
+  private MockTopLevelContainer form;
 
   /**
    * Creates new component design panel for visible components.
@@ -86,7 +86,7 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
    *
    * @param form  backing mocked form component
    */
-  public void setForm(MockForm form) {
+  public void setForm(MockTopLevelContainer form) {
     this.form = form;
     phoneScreen.add(form);
   }

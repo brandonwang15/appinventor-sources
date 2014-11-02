@@ -49,7 +49,11 @@ Blockly.Yail['lexical_variable_get'] = function() {
   var name = this.getFieldValue('VAR');
   
   var commandAndName = Blockly.Yail.getVariableCommandAndName(name);
-  code += commandAndName[0];
+  code += commandAndName[0] 
+  if (commandAndName[2]) {
+    code += Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER;
+  }
   name = commandAndName[1];
   
   code += name + Blockly.Yail.YAIL_CLOSE_COMBINATION;
@@ -62,7 +66,11 @@ Blockly.Yail['lexical_variable_set'] = function() {
   var code = "";
   var name = this.getFieldValue('VAR');
   var commandAndName = Blockly.Yail.setVariableCommandAndName(name);
-  code += commandAndName[0];
+  code += commandAndName[0] 
+  if (commandAndName[2]) {
+    code += Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER;
+  }
   name = commandAndName[1];
   code += name + Blockly.Yail.YAIL_SPACER + argument0
       + Blockly.Yail.YAIL_CLOSE_COMBINATION;
@@ -75,14 +83,16 @@ Blockly.Yail['getVariableCommandAndName'] = function(name){
   var pair = Blockly.unprefixName(name);
   var prefix = pair[0];
   var unprefixedName = pair[1];
+  var isGlobal = true;
   if (prefix === Blockly.globalNamePrefix) {
     name = Blockly.Yail.YAIL_GLOBAL_VAR_TAG + unprefixedName;
     command = Blockly.Yail.YAIL_GET_VARIABLE;
   } else {
     name = Blockly.Yail.YAIL_LOCAL_VAR_TAG + (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
     command = Blockly.Yail.YAIL_LEXICAL_VALUE;
+    isGlobal = false;
   }
-  return [command,name]
+  return [command,name, isGlobal]
 }
 
 // [lyn, 12/27/2012] New
@@ -91,14 +101,16 @@ Blockly.Yail['setVariableCommandAndName'] = function(name){
   var pair = Blockly.unprefixName(name);
   var prefix = pair[0];
   var unprefixedName = pair[1];
+  var isGlobal = true;
   if (prefix === Blockly.globalNamePrefix) {
     name = Blockly.Yail.YAIL_GLOBAL_VAR_TAG + unprefixedName;
     command = Blockly.Yail.YAIL_SET_VARIABLE;
   } else {
     name = Blockly.Yail.YAIL_LOCAL_VAR_TAG + (Blockly.possiblyPrefixYailNameWith(prefix))(unprefixedName);
     command = Blockly.Yail.YAIL_SET_LEXICAL_VALUE;
+    isGlobal = false;
   }
-  return [command,name]
+  return [command,name, isGlobal]
 }
 
 Blockly.Yail['local_declaration_statement'] = function() {

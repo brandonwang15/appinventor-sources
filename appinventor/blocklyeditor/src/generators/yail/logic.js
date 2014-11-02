@@ -27,7 +27,10 @@ Blockly.Yail['logic_negate'] = function() {
   var argument = Blockly.Yail
       .valueToCode(this, 'BOOL', Blockly.Yail.ORDER_NONE)
       || Blockly.Yail.YAIL_FALSE;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "yail-not"
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + "yail-not"
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER
@@ -70,7 +73,10 @@ Blockly.Yail['logic_compare'] = function() {
   var argument0 = Blockly.Yail.valueToCode(this, 'A', Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
   var argument1 = Blockly.Yail.valueToCode(this, 'B', Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
   var yailCommand = (this.getFieldValue('OP') == "NEQ" ? 'yail-not-equal?' : "yail-equal?" );
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + yailCommand
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+      + yailCommand
       + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION
       + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER

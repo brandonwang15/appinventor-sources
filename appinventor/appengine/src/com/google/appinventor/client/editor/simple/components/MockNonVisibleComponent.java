@@ -72,6 +72,11 @@ public final class MockNonVisibleComponent extends MockComponent {
   }
 
   @Override
+  public final boolean isTaskComponent() {
+    return false;
+  }
+
+  @Override
   public final int getPreferredHeight() {
     return 0;
   }

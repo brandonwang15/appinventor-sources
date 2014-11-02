@@ -13,7 +13,7 @@ goog.provide('Blockly.Yail.procedures');
 
 /**
  * Lyn's History:
- * [lyn, 10/29/13] Fixed bug in handling parameters of zero-arg procedures.
+ * [lyn, 10/29/13] Fixed bug in handling paraers of zero-arg procedures.
  * [lyn, 10/27/13] Modified procedure names to begin with YAIL_PROC_TAG (currently 'p$')
  *     and parameters to begin with YAIL_LOCAL_VAR_TAG (currently '$').
  *     At least on Kawa-legal first character is necessary to ensure AI identifiers
@@ -67,9 +67,10 @@ Blockly.Yail['procedures_callnoreturn'] = function() {
   for ( var x = 0;this.getInput("ARG" + x); x++) {
     argCode[x] = Blockly.Yail.valueToCode(this, 'ARG' + x, Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
   }
-  var code = Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_GET_VARIABLE + procName
-      + Blockly.Yail.YAIL_CLOSE_COMBINATION + Blockly.Yail.YAIL_SPACER + argCode.join(' ')
-      + Blockly.Yail.YAIL_CLOSE_COMBINATION;
+  var code = Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_GET_VARIABLE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context + Blockly.Yail.YAIL_DOUBLE_QUOTE
+      + Blockly.Yail.YAIL_SPACER + procName + Blockly.Yail.YAIL_CLOSE_COMBINATION
+      + Blockly.Yail.YAIL_SPACER + argCode.join(' ') + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   return code;
 };
 
@@ -80,8 +81,9 @@ Blockly.Yail['procedures_callreturn'] = function() {
   for ( var x = 0; this.getInput("ARG" + x); x++) {
     argCode[x] = Blockly.Yail.valueToCode(this, 'ARG' + x, Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
   }
-  var code = Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_GET_VARIABLE + procName
-      + Blockly.Yail.YAIL_CLOSE_COMBINATION + Blockly.Yail.YAIL_SPACER + argCode.join(' ')
-      + Blockly.Yail.YAIL_CLOSE_COMBINATION;
+  var code = Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_GET_VARIABLE
+      + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context + Blockly.Yail.YAIL_DOUBLE_QUOTE
+      + procName + Blockly.Yail.YAIL_CLOSE_COMBINATION + Blockly.Yail.YAIL_SPACER
+      + argCode.join(' ') + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   return [ code, Blockly.Yail.ORDER_ATOMIC ];
 };

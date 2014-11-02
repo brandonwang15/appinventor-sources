@@ -556,7 +556,7 @@ public final class YaFormEditor extends SimpleEditor implements FormChangeListen
    * Encodes the form's properties as a JSON encoded string. Used by YaBlocksEditor as well,
    * to send the form info to the blockly world during code generation.
    */
-  protected String encodeFormAsJsonString() {
+  public String encodeFormAsJsonString() {
     StringBuilder sb = new StringBuilder();
     sb.append("{");
     sb.append("\"YaVersion\":\"").append(YaVersion.YOUNG_ANDROID_VERSION).append("\",");
@@ -569,7 +569,7 @@ public final class YaFormEditor extends SimpleEditor implements FormChangeListen
 
   // [lyn, 2014/10/13] returns the *pre-upgraded* JSON for this form.
   // needed to allow associated blocks editor to get this info.
-  protected String preUpgradeJsonString() {
+  public String preUpgradeJsonString() {
     return preUpgradeJsonString;
   }
 

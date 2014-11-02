@@ -21,6 +21,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -148,7 +149,7 @@ public final class Twitter extends AndroidNonvisibleComponent implements
     directMessages = new ArrayList<String>();
     searchResults = new ArrayList<String>();
 
-    sharedPreferences = container.$context().getSharedPreferences("Twitter",
+    sharedPreferences = ((Activity) container.$context()).getSharedPreferences("Twitter",
         Context.MODE_PRIVATE);
     accessToken = retrieveAccessToken();
 
@@ -291,7 +292,7 @@ public final class Twitter extends AndroidNonvisibleComponent implements
               .parse(authURL));
           browserIntent.setClassName(container.$context(),
               WEBVIEW_ACTIVITY_CLASS);
-          container.$context().startActivityForResult(browserIntent,
+          ((Activity) container.$context()).startActivityForResult(browserIntent,
               requestCode);
         } catch (TwitterException e) {
           Log.i("Twitter", "Got exception: " + e.getMessage());

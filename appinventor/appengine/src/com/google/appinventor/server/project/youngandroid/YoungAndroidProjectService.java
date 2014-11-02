@@ -36,6 +36,7 @@ import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidAssetN
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidAssetsFolder;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidBlocksNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidFormNode;
+import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidTaskNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidPackageNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidProjectNode;
 import com.google.appinventor.shared.rpc.project.youngandroid.YoungAndroidSourceFolderNode;
@@ -94,6 +95,8 @@ public final class YoungAndroidProjectService extends CommonProjectService {
   // TODO(user) Source these from a common constants library.
   private static final String FORM_PROPERTIES_EXTENSION =
       YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION;
+  private static final String TASK_PROPERTIES_EXTENSION =
+      YoungAndroidSourceAnalyzer.TASK_PROPERTIES_EXTENSION;
   private static final String CODEBLOCKS_SOURCE_EXTENSION =
       YoungAndroidSourceAnalyzer.CODEBLOCKS_SOURCE_EXTENSION;
   private static final String BLOCKLY_SOURCE_EXTENSION =
@@ -193,6 +196,28 @@ public final class YoungAndroidProjectService extends CommonProjectService {
         "\"Properties\":{\"$Name\":\"" + formName + "\",\"$Type\":\"Form\"," +
         "\"$Version\":\"" + YaVersion.FORM_COMPONENT_VERSION + "\",\"Uuid\":\"" + 0 + "\"," +
         "\"Title\":\"" + formName + "\",\"AppName\":\"" + packageName +"\"}}\n|#";
+  }
+
+    /**
+   * Returns the contents of a new Young Android task file.
+   * @param qualifiedName the qualified name of the task.
+   * @return the contents of a new Young Android task file.
+   */
+  @VisibleForTesting
+  public static String getInitialTaskPropertiesFileContents(String qualifiedName) {
+    final int lastDotPos = qualifiedName.lastIndexOf('.');
+    String taskName = qualifiedName.substring(lastDotPos + 1);
+    // The initial Uuid is set to zero here since (as far as we know) we can't get random numbers
+    // in ode.shared.  This shouldn't actually matter since all Uuid's are random int's anyway (and
+    // 0 was randomly chosen, I promise).  The TODO(user) in MockComponent.java indicates that
+    // there will someday be assurance that these random Uuid's are unique.  Once that happens
+    // this will be perfectly acceptable.  Until that happens, choosing 0 is just as safe as
+    // allowing a random number to be chosen when the MockComponent is first created.
+    return "#|\n$JSON\n" +
+        "{\"YaVersion\":\"" + YaVersion.YOUNG_ANDROID_VERSION + "\",\"Source\":\"Task\"," +
+        "\"Properties\":{\"$Name\":\"" + taskName + "\",\"$Type\":\"Task\"," +
+        "\"$Version\":\"" + YaVersion.FORM_COMPONENT_VERSION + "\",\"Uuid\":\"" + 0 + "\"," +
+        "\"Title\":\"" + taskName + "\"}}\n|#";
   }
 
   /**
@@ -392,6 +417,8 @@ public final class YoungAndroidProjectService extends CommonProjectService {
         YoungAndroidSourceNode sourceNode = null;
         if (fileId.endsWith(FORM_PROPERTIES_EXTENSION)) {
           sourceNode = new YoungAndroidFormNode(fileId);
+        } else if (fileId.endsWith(TASK_PROPERTIES_EXTENSION)) {
+          sourceNode = new YoungAndroidTaskNode(fileId);
         } else if (fileId.endsWith(BLOCKLY_SOURCE_EXTENSION)) {
           sourceNode = new YoungAndroidBlocksNode(fileId);
         } else if (fileId.endsWith(CODEBLOCKS_SOURCE_EXTENSION)) {
@@ -459,6 +486,35 @@ public final class YoungAndroidProjectService extends CommonProjectService {
             StorageUtil.DEFAULT_CHARSET);
 
         String blocklyFileContents = getInitialBlocklySourceFileContents(qualifiedFormName);
+        storageIo.addSourceFilesToProject(userId, projectId, false, blocklyFileName);
+        storageIo.uploadFileForce(projectId, blocklyFileName, userId, blocklyFileContents,
+            StorageUtil.DEFAULT_CHARSET);
+
+        String yailFileContents = "";  // start empty
+        storageIo.addSourceFilesToProject(userId, projectId, false, yailFileName);
+        return storageIo.uploadFileForce(projectId, yailFileName, userId, yailFileContents,
+            StorageUtil.DEFAULT_CHARSET);
+      } else {
+        throw new IllegalStateException("One or more files to be added already exists.");
+      }
+
+    } else if (fileId.endsWith(TASK_PROPERTIES_EXTENSION)) {
+      String qualifiedTaskName = YoungAndroidSourceNode.getQualifiedName(fileId);
+      String taskFileName = YoungAndroidTaskNode.getTaskFileId(qualifiedTaskName);
+      String blocklyFileName = YoungAndroidBlocksNode.getBlocklyFileId(qualifiedTaskName);
+      String yailFileName = YoungAndroidYailNode.getYailFileId(qualifiedTaskName);
+
+      List<String> sourceFiles = storageIo.getProjectSourceFiles(userId, projectId);
+      if (!sourceFiles.contains(taskFileName) &&
+          !sourceFiles.contains(blocklyFileName) &&
+          !sourceFiles.contains(yailFileName)) {
+
+        String taskFileContents = getInitialTaskPropertiesFileContents(qualifiedTaskName);
+        storageIo.addSourceFilesToProject(userId, projectId, false, taskFileName);
+        storageIo.uploadFileForce(projectId, taskFileName, userId, taskFileContents,
+            StorageUtil.DEFAULT_CHARSET);
+
+        String blocklyFileContents = getInitialBlocklySourceFileContents(qualifiedTaskName);
         storageIo.addSourceFilesToProject(userId, projectId, false, blocklyFileName);
         storageIo.uploadFileForce(projectId, blocklyFileName, userId, blocklyFileContents,
             StorageUtil.DEFAULT_CHARSET);

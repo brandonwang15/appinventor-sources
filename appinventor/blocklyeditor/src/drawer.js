@@ -453,6 +453,6 @@ Blockly.Drawer.defaultBlockXMLStrings = {
          Blockly.Drawer.mutatorAttributesToXMLString(mutatorAttributes) +
          '<value name="ARG3"><block type="logic_boolean"><title name="BOOL">TRUE</title></block></value>' +
          '</block>' +
-         '</xml>';}},
+         '</xml>';}}
   ]
 };

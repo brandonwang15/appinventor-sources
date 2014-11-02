@@ -51,7 +51,9 @@ Blockly.Yail.YAIL_COMPONENT_TYPE = "component";
 Blockly.Yail.YAIL_DEFINE = "(def ";
 Blockly.Yail.YAIL_DEFINE_EVENT = "(define-event ";
 Blockly.Yail.YAIL_DEFINE_FORM = "(define-form ";
+Blockly.Yail.YAIL_DEFINE_TASK = "(define-task ";
 Blockly.Yail.YAIL_DO_AFTER_FORM_CREATION = "(do-after-form-creation ";
+Blockly.Yail.YAIL_DO_AFTER_TASK_CREATION = "(do-after-task-creation ";
 Blockly.Yail.YAIL_DOUBLE_QUOTE = "\"";
 Blockly.Yail.YAIL_FALSE = "#f";
 Blockly.Yail.YAIL_FOREACH = "(foreach ";
@@ -130,13 +132,13 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
 
   var globalBlocks = componentMap.globals;
   for (var i = 0, block; block = globalBlocks[i]; i++) {
-    code.push(Blockly.Yail.blockToCode(block));
+    code.push(Blockly.Yail.blockToCodeContext(block, "Form"));
   }
   
   if (formProperties) {
     var sourceType = jsonObject.Source;
     if (sourceType == "Form") {
-      code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, null /*parent*/, 
+      code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, "Form", null /*parent*/, 
         componentMap, false /*forRepl*/));
     } else {
       throw "Source type " + sourceType + " is invalid.";
@@ -149,8 +151,10 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
         return componentNames.indexOf(elem) == pos});
     componentNames = uniqueNames;
 
-    // Add runtime initializations
-    code.push(Blockly.Yail.YAIL_INIT_RUNTIME);
+    if (sourceType == "Form") {      
+      // Add runtime initializations
+      code.push(Blockly.Yail.YAIL_INIT_RUNTIME);
+    }
   
     if (forRepl) {
       code = Blockly.Yail.wrapForRepl(formName, code, componentNames);
@@ -162,6 +166,52 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
     // doing anything. If we do need this, something like the call below might work.
     // 
     // finalCode = code.join('\n').replace(/\\(set-property.*\"\"\\)\\n*/mg, "");
+  }
+  
+  return code.join('\n');  // Blank line between each section.
+};
+
+Blockly.Yail.getTaskYail = function(taskJson, packageName) {
+  var jsonObject = JSON.parse(taskJson); 
+  var componentNames = [];
+  var taskProperties; 
+  var taskName;
+  var code = [];
+  if (jsonObject.Properties) {
+    taskProperties = jsonObject.Properties;
+    taskName = taskProperties.$Name;
+  } else {
+    throw "Cannot find task properties";
+  }
+  if (!taskName) {
+    throw "Unable to determine task name";
+  }
+
+  code.push(Blockly.Yail.getYailTaskPrelude(packageName, taskName));
+      
+  var componentMap = Blockly.Component.buildComponentMap([], [], false, false);
+  
+  for (var comp in componentMap.components)
+    componentNames.push(comp);
+
+  var globalBlocks = componentMap.globals;
+  for (var i = 0, block; block = globalBlocks[i]; i++) {
+    code.push(Blockly.Yail.blockToCodeContext(block, "Task"));
+  }
+  
+  if (taskProperties) {
+    var sourceType = jsonObject.Source;
+    if (sourceType == "Task") {
+      code = code.concat(Blockly.Yail.getComponentLines(taskName, taskProperties, "Task", null /*parent*/, 
+        componentMap, false /*forRepl*/));
+    } else {
+      throw "Source type " + sourceType + " is invalid.";
+    }
+
+    if (sourceType == "Task") {      
+      // Add runtime initializations
+      code.push(Blockly.Yail.YAIL_INIT_RUNTIME);
+    }
   }
   
   return code.join('\n');  // Blank line between each section.
@@ -190,6 +240,16 @@ Blockly.Yail.getDeepNames = function(componentJson, componentNames) {
 Blockly.Yail.getYailPrelude = function(packageName, formName) {
  return "#|\n$Source $Yail\n|#\n\n"
      + Blockly.Yail.YAIL_DEFINE_FORM
+     + packageName
+     + Blockly.Yail.YAIL_SPACER
+     + formName
+     + Blockly.Yail.YAIL_CLOSE_BLOCK
+     + "(require <com.google.youngandroid.runtime>)\n";
+}
+
+Blockly.Yail.getYailTaskPrelude = function(packageName, formName) {
+ return "#|\n$Source $Yail\n|#\n\n"
+     + Blockly.Yail.YAIL_DEFINE_TASK
      + packageName
      + Blockly.Yail.YAIL_SPACER
      + formName
@@ -258,14 +318,16 @@ Blockly.Yail.getComponentInitializationString = function(formName, componentName
  * @returns {Array} code strings
  * @private
  */
-Blockly.Yail.getComponentLines = function(formName, componentJson, parentName, componentMap, 
+Blockly.Yail.getComponentLines = function(formName, componentJson, context, parentName, componentMap, 
   forRepl) {
   var code = [];
   var componentName = componentJson.$Name;
   if (componentJson.$Type == 'Form') {
     code = Blockly.Yail.getFormPropertiesLines(formName, componentJson, !forRepl);
+  } else if (componentJson.$Type == 'Task') {
+    code = Blockly.Yail.getTaskPropertiesLines(formName, componentJson, !forRepl);
   } else {
-    code = Blockly.Yail.getComponentPropertiesLines(formName, componentJson, parentName, !forRepl);
+    code = Blockly.Yail.getComponentPropertiesLines(context, formName, componentJson, parentName, !forRepl);
   }
 
   if (!forRepl) {
@@ -273,7 +335,7 @@ Blockly.Yail.getComponentLines = function(formName, componentJson, parentName, c
     if (componentMap.components && componentMap.components[componentName]) {
       var componentBlocks = componentMap.components[componentName];
       for (var i = 0, block; block = componentBlocks[i]; i++) {
-        code.push(Blockly.Yail.blockToCode(block));
+        code.push(Blockly.Yail.blockToCodeContext(block, context));
       }
     }
   }
@@ -282,7 +344,7 @@ Blockly.Yail.getComponentLines = function(formName, componentJson, parentName, c
   if (componentJson.$Components) {
     var children = componentJson.$Components;
     for (var i = 0, child; child = children[i]; i++) {
-      code = code.concat(Blockly.Yail.getComponentLines(formName, child, componentName, 
+      code = code.concat(Blockly.Yail.getComponentLines(formName, child, context, componentName, 
         componentMap, forRepl));
     }
   }
@@ -302,7 +364,7 @@ Blockly.Yail.getComponentLines = function(formName, componentJson, parentName, c
  * @returns {Array} code strings
  * @private
  */
-Blockly.Yail.getComponentPropertiesLines = function(formName, componentJson, parentName, 
+Blockly.Yail.getComponentPropertiesLines = function(context, formName, componentJson, parentName, 
   includeComments) {
   var code = [];
   var componentName = componentJson.$Name;
@@ -314,7 +376,7 @@ Blockly.Yail.getComponentPropertiesLines = function(formName, componentJson, par
   }
   code.push(Blockly.Yail.YAIL_ADD_COMPONENT + parentName + Blockly.Yail.YAIL_SPACER + 
     componentType + Blockly.Yail.YAIL_SPACER + componentName + Blockly.Yail.YAIL_SPACER);
-  code = code.concat(Blockly.Yail.getPropertySettersLines(componentJson, componentName));
+  code = code.concat(Blockly.Yail.getPropertySettersLines(context, componentJson, componentName));
   code.push(Blockly.Yail.YAIL_CLOSE_BLOCK);
   return code;
 }
@@ -333,7 +395,7 @@ Blockly.Yail.getFormPropertiesLines = function(formName, componentJson, includeC
   if (includeComments) {
     code.push(Blockly.Yail.YAIL_COMMENT_MAJOR + formName + Blockly.Yail.YAIL_LINE_FEED);
   }
-  var yailForComponentProperties = Blockly.Yail.getPropertySettersLines(componentJson, formName);
+  var yailForComponentProperties = Blockly.Yail.getPropertySettersLines("Form", componentJson, formName);
   if (yailForComponentProperties.length > 0) {
     // getPropertySettersLine returns an array of lines.  So we need to 
     // concatenate them (using join) before pushing them onto the Yail expression.
@@ -346,6 +408,25 @@ Blockly.Yail.getFormPropertiesLines = function(formName, componentJson, includeC
   return code;
 }
 
+Blockly.Yail.getTaskPropertiesLines = function(formName, componentJson, includeComments) {
+  var code = [];
+  if (includeComments) {
+    code.push(Blockly.Yail.YAIL_COMMENT_MAJOR + formName + Blockly.Yail.YAIL_LINE_FEED);
+  }
+  var yailForComponentProperties = Blockly.Yail.getPropertySettersLines("Task", componentJson, formName);
+  if (yailForComponentProperties.length > 0) {
+    // getPropertySettersLine returns an array of lines.  So we need to 
+    // concatenate them (using join) before pushing them onto the Yail expression.
+    // WARNING:  There may be other type errors of this sort in this file, which
+    // (hopefully) will be uncovered in testing. Please
+    // be alert for these errors and check carefully.
+    code.push(Blockly.Yail.YAIL_DO_AFTER_TASK_CREATION + yailForComponentProperties.join(" ") + 
+      Blockly.Yail.YAIL_CLOSE_BLOCK);
+  }
+  return code;
+  return code;
+}
+
 /**
  * Generate the code to set property values for the specifed component.
  *
@@ -355,11 +436,11 @@ Blockly.Yail.getFormPropertiesLines = function(formName, componentJson, includeC
  * @returns {Array} code strings
  * @private
  */
-Blockly.Yail.getPropertySettersLines = function(componentJson, componentName) {
+Blockly.Yail.getPropertySettersLines = function(context, componentJson, componentName) {
   var code = [];
   for (var prop in componentJson) {
     if (prop.charAt(0) != "$" && prop != "Uuid") {
-      code.push(Blockly.Yail.getPropertySetterString(componentName, componentJson.$Type, prop, 
+      code.push(Blockly.Yail.getPropertySetterString(context, componentName, componentJson.$Type, prop, 
         componentJson[prop]));
     }
   }
@@ -375,14 +456,15 @@ Blockly.Yail.getPropertySettersLines = function(componentJson, componentName) {
  * @returns code string
  * @private
  */
-Blockly.Yail.getPropertySetterString = function(componentName, componentType, propertyName, 
+Blockly.Yail.getPropertySetterString = function(context, componentName, componentType, propertyName, 
   propertyValue) {
-  var code = Blockly.Yail.YAIL_SET_AND_COERCE_PROPERTY + Blockly.Yail.YAIL_QUOTE + 
+  var code = Blockly.Yail.YAIL_SET_AND_COERCE_PROPERTY + Blockly.Yail.YAIL_DOUBLE_QUOTE + context +
+    Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + 
     componentName + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + propertyName + 
     Blockly.Yail.YAIL_SPACER;
   var propType = Blockly.Yail.YAIL_QUOTE + 
     Blockly.ComponentTypes[componentType].properties[propertyName].type;
-  var value = Blockly.Yail.getPropertyValueString(propertyValue, propType);
+  var value = Blockly.Yail.getPropertyValueString(context, propertyValue, propType);
   code = code.concat(value + Blockly.Yail.YAIL_SPACER + propType + Blockly.Yail.YAIL_CLOSE_BLOCK);
   return code;
 }
@@ -397,7 +479,7 @@ Blockly.Yail.getPropertySetterString = function(componentName, componentType, pr
  * @returns code string
  * @private
  */
-Blockly.Yail.getPropertyValueString = function(propertyValue, propertyType) {
+Blockly.Yail.getPropertyValueString = function(context, propertyValue, propertyType) {
   if (propertyType == "'number") {
     if (propertyValue.match(Blockly.Yail.INTEGER_REGEXP) 
             || propertyValue.match(Blockly.Yail.FLONUM_REGEXP)) { // integer
@@ -416,7 +498,8 @@ Blockly.Yail.getPropertyValueString = function(propertyValue, propertyType) {
     if (propertyValue == "") {
       return "\"\"";
     } else {
-      return Blockly.Yail.YAIL_GET_COMPONENT + propertyValue + ")";
+      return Blockly.Yail.YAIL_GET_COMPONENT + Blockly.Yail.YAIL_DOUBLE_QUOTE + context +
+        Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + propertyValue + ")";
     }
   }
 
@@ -557,7 +640,7 @@ Blockly.Yail.scrub_ = function(block, code, thisOnly) {
     }
   }*/
   var nextBlock = block.nextConnection && block.nextConnection.targetBlock();
-  var nextCode = thisOnly ? "" : this.blockToCode(nextBlock);
+  var nextCode = thisOnly ? "" : this.blockToCodeContext(nextBlock, block.context);
   return commentCode + code + nextCode;
 };
 
@@ -611,6 +694,13 @@ Blockly.Yail.blockToCode1 = function(block) {
     }
     return this.scrub_(block, code, true);
   }
+};
+
+Blockly.Yail.blockToCodeContext = function(block, context) {
+  if (block) {
+    block.context = context;
+  }
+  return Blockly.Yail.blockToCode(block);
 };
 
 

@@ -95,6 +95,7 @@ public final class SimpleComponentDescriptor {
     bundledImages.put("images/camcorder.png", images.camcorder());
     bundledImages.put("images/clock.png", images.clock());
     bundledImages.put("images/fusiontables.png", images.fusiontables());
+    bundledImages.put("images/fusiontables.png", images.applicationMessenger());
     bundledImages.put("images/gameClient.png", images.gameclient());
     bundledImages.put("images/locationSensor.png", images.locationSensor());
     bundledImages.put("images/notifier.png", images.notifier());
@@ -111,6 +112,7 @@ public final class SimpleComponentDescriptor {
     bundledImages.put("images/texting.png", images.texting());
     bundledImages.put("images/datePicker.png", images.datePickerComponent());
     bundledImages.put("images/timePicker.png", images.timePickerComponent());
+    bundledImages.put("images/notification.png", images.notificationComponent());
     bundledImages.put("images/tinyDB.png", images.tinyDB());
     bundledImages.put("images/file.png", images.file());
     bundledImages.put("images/tinyWebDB.png", images.tinyWebDB());

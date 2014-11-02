@@ -54,6 +54,7 @@ public class BlocklyPanel extends HTMLPanel {
 
   // The currently displayed form (project/screen)
   private static String currentForm;
+  private static String currentType;
   private static String languageSetting;
 
   private static class ComponentOp {
@@ -558,12 +559,12 @@ public class BlocklyPanel extends HTMLPanel {
    * @return the yail code as a String
    * @throws YailGenerationException if there was a problem generating the Yail
    */
-  public String getYail(String formJson, String packageName) throws YailGenerationException {
+  public String getYail(String formJson, String packageName, String type) throws YailGenerationException {
     if (!blocksInited(formName)) {
       throw new YailGenerationException("Blocks area is not initialized yet", formName);
     }
     try {
-      return doGetYail(formName, formJson, packageName);
+      return doGetYail(formName, formJson, packageName, type);
     } catch (JavaScriptException e) {
       throw new YailGenerationException(e.getDescription(), formName);
     }
@@ -575,8 +576,8 @@ public class BlocklyPanel extends HTMLPanel {
    *
    * @throws YailGenerationException if there was a problem generating the Yail
    */
-  public void sendComponentData(String formJson, String packageName) throws YailGenerationException {
-    if (!currentForm.equals(formName)) { // Not working on the current form...
+  public void sendComponentData(String formJson, String packageName, String type) throws YailGenerationException {
+    if ((type == "Form") && (!currentForm.equals(formName))) { // Not working on the current form...
       OdeLog.log("Not working on " + currentForm + " (while sending for " + formName + ")");
       return;
     }
@@ -584,7 +585,7 @@ public class BlocklyPanel extends HTMLPanel {
       throw new YailGenerationException("Blocks area is not initialized yet", formName);
     }
     try {
-      doSendJson(formName, formJson, packageName);
+      doSendJson(formName, formJson, packageName, type);
     } catch (JavaScriptException e) {
       throw new YailGenerationException(e.getDescription(), formName);
     }
@@ -597,6 +598,11 @@ public class BlocklyPanel extends HTMLPanel {
       doResetYail(formName);
     formName = newFormName;
     blocklyWorkspaceChanged(formName);
+  }
+
+  public void showTask(String taskName) {
+    doResetYail(taskName);
+    blocklyWorkspaceChanged(taskName);
   }
 
   public void startRepl(boolean alreadyRunning, boolean forEmulator, boolean forUsb) { // Start the Repl
@@ -614,8 +620,9 @@ public class BlocklyPanel extends HTMLPanel {
   // Set currentScreen
   // We use this to determine if we should send Yail to a
   // a connected device.
-  public static void setCurrentForm(String formName) {
+  public static void setCurrentForm(String formName, String type) {
     currentForm = formName;
+    currentType = type;
     if (blocksInited(formName))
       blocklyWorkspaceChanged(formName); // Update the device now if the blocks are ready.
   }
@@ -737,6 +744,10 @@ public class BlocklyPanel extends HTMLPanel {
       return "";                // This only happens when you have no projects
     }
     return doQRCode(currentForm, inString);
+  }
+
+  public static String getCurrentContainerType() {
+    return currentType;
   }
 
   /**
@@ -904,12 +915,16 @@ public class BlocklyPanel extends HTMLPanel {
     return $wnd.Blocklies[formName].Yail.getFormYail(formJson, packageName, true);
   }-*/;
 
-  public static native String doGetYail(String formName, String formJson, String packageName) /*-{
-    return $wnd.Blocklies[formName].Yail.getFormYail(formJson, packageName);
+  public static native String doGetYail(String formName, String formJson, String packageName, String type) /*-{
+    if (type == "Form") {
+      return $wnd.Blocklies[formName].Yail.getFormYail(formJson, packageName);      
+    } else {
+      return $wnd.Blocklies[formName].Yail.getTaskYail(formJson, packageName);
+    }
   }-*/;
 
-  public static native void doSendJson(String formName, String formJson, String packageName) /*-{
-    $wnd.Blocklies[formName].ReplMgr.sendFormData(formJson, packageName);
+  public static native void doSendJson(String formName, String formJson, String packageName, String type) /*-{
+    $wnd.Blocklies[formName].ReplMgr.sendFormData(formJson, packageName, type);
   }-*/;
 
   public static native void doResetYail(String formName) /*-{

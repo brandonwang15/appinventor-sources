@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.TreeItem;
  * Mock Form component.
  *
  */
-public final class MockForm extends MockContainer {
+public final class MockForm extends MockTopLevelContainer {
 
   /*
    * Widget for the mock form title bar.

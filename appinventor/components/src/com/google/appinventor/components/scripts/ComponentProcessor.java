@@ -49,6 +49,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+import java.util.logging.Logger;
 
 /**
  * Processor for generating output files based on the annotations and
@@ -75,6 +76,9 @@ import javax.tools.StandardLocation;
  * @author spertus@google.com (Ellen Spertus)
  */
 public abstract class ComponentProcessor extends AbstractProcessor {
+
+  private static final Logger LOG = Logger.getLogger(ComponentProcessor.class.getName());
+
   private static final String OUTPUT_PACKAGE = "";
 
   // Returned by getSupportedAnnotationTypes()
@@ -808,6 +812,7 @@ public abstract class ComponentProcessor extends AbstractProcessor {
     processMethods(componentInfo, element);
 
     // Add it to our components map.
+
     components.put(longComponentName, componentInfo);
   }
 

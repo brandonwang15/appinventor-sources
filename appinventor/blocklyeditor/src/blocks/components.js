@@ -286,6 +286,7 @@ Blockly.Blocks.component_method = {
     if(!this.isGeneric) {
       this.instanceName = xmlElement.getAttribute('instance_name');//instance name not needed
     }
+    this.context = "";
 
     this.setColour(Blockly.ComponentBlock.COLOUR_METHOD);
 

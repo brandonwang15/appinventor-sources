@@ -54,6 +54,7 @@ public abstract class YoungAndroidSourceNode extends SourceNode {
   public static String getQualifiedName(String sourceFileId) {
     Preconditions.checkArgument(sourceFileId.startsWith(SRC_PREFIX) && (
         sourceFileId.endsWith(YoungAndroidSourceAnalyzer.FORM_PROPERTIES_EXTENSION) ||
+        sourceFileId.endsWith(YoungAndroidSourceAnalyzer.TASK_PROPERTIES_EXTENSION) ||
         sourceFileId.endsWith(YoungAndroidSourceAnalyzer.CODEBLOCKS_SOURCE_EXTENSION) ||
         sourceFileId.endsWith(YoungAndroidSourceAnalyzer.BLOCKLY_SOURCE_EXTENSION) ||
         sourceFileId.endsWith(YoungAndroidSourceAnalyzer.YAIL_FILE_EXTENSION)));

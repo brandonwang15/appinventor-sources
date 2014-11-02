@@ -144,6 +144,7 @@ Blockly.Generator.prototype.blockToCode = function(block) {
     return this.blockToCode(block.getNextBlock());
   }
 
+
   var func = this[block.type];
   if (!func) {
     throw 'Language "' + this.name_ + '" does not know how to generate code ' +
@@ -187,6 +188,8 @@ Blockly.Generator.prototype.valueToCode = function(block, name, order) {
   var targetBlock = block.getInputTargetBlock(name);
   if (!targetBlock) {
     return '';
+  } else {
+    targetBlock.context = block.context;
   }
   var tuple = this.blockToCode(targetBlock);
   if (tuple === '') {
@@ -228,6 +231,9 @@ Blockly.Generator.prototype.valueToCode = function(block, name, order) {
  */
 Blockly.Generator.prototype.statementToCode = function(block, name) {
   var targetBlock = block.getInputTargetBlock(name);
+  if (targetBlock) {
+    targetBlock.context = block.context;
+  }
   var code = this.blockToCode(targetBlock);
   if (!goog.isString(code)) {
     // Value blocks must return code and order of operations info.

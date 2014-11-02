@@ -309,6 +309,7 @@ public class YaVersion {
 
   public static final int YOUNG_ANDROID_VERSION = 116;
 
+
   // ............................... Blocks Language Version Number ...............................
 
   // NOTE(lizlooney,user) - when the blocks language changes:
@@ -421,6 +422,10 @@ public class YaVersion {
   // - The ActivityStarter.StartActivity was edited to use the parent Form's open screen
   //   animation to transition to next activity.
   public static final int ACTIVITYSTARTER_COMPONENT_VERSION = 4;
+
+  // FOR APPLICATION_MESSENGER_VERSION 1:
+  // - Added the ApplicationMessenger component to give users access to broadcast messaging and receiving.
+  public static final int APPLICATION_MESSENGER_VERSION = 1;
 
   // For BALL_COMPONENT_VERSION 2:
   // - The PointTowards method was added (for all sprites)
@@ -647,6 +652,8 @@ public class YaVersion {
 
   // For NEARFIELD_COMPONENT_VERSION 1:
   public static final int NEARFIELD_COMPONENT_VERSION = 1;
+
+  public static final int NOTIFICATION_COMPONENT_VERSION = 1;
 
   // For NOTIFIER_COMPONENT_VERSION 2:
   // - To ShowChooseDialog and ShowTextDialog, new arg was added to indicate if dialog is cancelable

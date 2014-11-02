@@ -61,7 +61,7 @@ import java.util.List;
                  "android.permission.ACCESS_COARSE_LOCATION," +
                  "android.permission.ACCESS_MOCK_LOCATION," +
                  "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS")
-public class LocationSensor extends AndroidNonvisibleComponent
+public class LocationSensor extends AndroidNonVisibleTaskComponent
     implements Component, OnStopListener, OnResumeListener, Deleteable {
 
   /**
@@ -184,11 +184,13 @@ public class LocationSensor extends AndroidNonvisibleComponent
    * @param container  ignored (because this is a non-visible component)
    */
   public LocationSensor(ComponentContainer container) {
-    super(container.$form());
+    super(container);
     handler = new Handler();
     // Set up listener
-    form.registerForOnResume(this);
-    form.registerForOnStop(this);
+    if (form != null) {      
+      form.registerForOnResume(this);
+      form.registerForOnStop(this);
+    }
 
     // Initialize sensor properties (60 seconds; 5 meters)
     timeInterval = 60000;
@@ -482,7 +484,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
       }
       return addressObjs.get(0).getLatitude();
     } catch (IOException e) {
-      form.dispatchErrorOccurredEvent(this, "LatitudeFromAddress",
+      dispatchErrorOccurredEvent(this, "LatitudeFromAddress",
           ErrorMessages.ERROR_LOCATION_SENSOR_LATITUDE_NOT_FOUND, locationName);
       return 0;
     }
@@ -504,7 +506,7 @@ public class LocationSensor extends AndroidNonvisibleComponent
       }
       return addressObjs.get(0).getLongitude();
     } catch (IOException e) {
-      form.dispatchErrorOccurredEvent(this, "LongitudeFromAddress",
+      dispatchErrorOccurredEvent(this, "LongitudeFromAddress",
           ErrorMessages.ERROR_LOCATION_SENSOR_LONGITUDE_NOT_FOUND, locationName);
       return 0;
     }

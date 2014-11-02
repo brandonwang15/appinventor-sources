@@ -42,7 +42,7 @@ public class TableArrangement extends AndroidViewComponent
   */
   public TableArrangement(ComponentContainer container) {
     super(container);
-    context = container.$context();
+    context = (Activity) container.$context();
 
     viewLayout = new TableLayout(context, 2, 2);
 
@@ -103,6 +103,11 @@ public class TableArrangement extends AndroidViewComponent
   @Override
   public Form $form() {
     return container.$form();
+  }
+
+  @Override
+  public Task $task() {
+    return container.$task();
   }
 
   @Override

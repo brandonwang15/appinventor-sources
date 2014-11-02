@@ -195,6 +195,8 @@ Blockly.Block.getById = function(id, workspace) {
  */
 Blockly.Block.prototype.svg_ = null;
 
+Blockly.Block.prototype.context = null;
+
 /**
  * Block's mutator icon (if any).
  * @type {Blockly.Mutator}

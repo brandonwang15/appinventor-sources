@@ -21,6 +21,7 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -43,6 +44,7 @@ import com.google.appinventor.components.annotations.DesignerComponent;
 import com.google.appinventor.components.annotations.DesignerProperty;
 import com.google.appinventor.components.annotations.PropertyCategory;
 import com.google.appinventor.components.annotations.SimpleEvent;
+import com.google.appinventor.components.annotations.SimpleFunction;
 import com.google.appinventor.components.annotations.SimpleObject;
 import com.google.appinventor.components.annotations.SimpleProperty;
 import com.google.appinventor.components.annotations.UsesPermissions;
@@ -85,6 +87,8 @@ public class Form extends Activity
   private static final String RESULT_NAME = "APP_INVENTOR_RESULT";
 
   private static final String ARGUMENT_NAME = "APP_INVENTOR_START";
+
+  public static final String SERVICE_ARG = "SERVICE_START_ARGUMENT";
 
   public static final String APPINVENTOR_URL_SCHEME = "appinventor";
 
@@ -526,6 +530,58 @@ public class Form extends Activity
         }
       }
     });
+  }
+
+  @SimpleFunction(description = "Starts the specified task without a start value")
+  public void StartTask(String taskName) {
+    if (activeForm != null) {
+      activeForm.startNewService(taskName, "");
+    } else {
+      throw new IllegalStateException("activeForm is null");
+    }
+  }
+
+  @SimpleFunction(description = "Starts the specified task with a start value")
+  public void StartTaskWithValue(String taskName, String startValue) {
+    if (activeForm != null) {
+      activeForm.startNewService(taskName, null);
+    } else {
+      throw new IllegalStateException("activeForm is null");
+    }
+  }
+
+  public void startNewService(String taskName, String startValue) {
+    Intent serviceIntent = new Intent();
+    // Note that the following is dependent on form generated class names being the same as
+    // their form names and all forms being in the same package.
+    String packageName = getPackageName();
+    serviceIntent.setClassName(this, packageName + "." + taskName);
+    String functionName = "open another service";
+    String jValue = "";
+    if (startupValue != null) {
+      jValue = jsonEncodeForForm(startupValue, functionName);
+    }
+    serviceIntent.putExtra(SERVICE_ARG, jValue);
+    try {
+      startService(serviceIntent);
+    } catch (ActivityNotFoundException e) {
+      dispatchErrorOccurredEvent(this, functionName,
+          ErrorMessages.ERROR_SCREEN_NOT_FOUND, taskName);
+    }
+  }
+
+  @SimpleFunction(description = "Stops the specified task")
+  public void StopTask(String taskName) {
+    Intent serviceIntent = new Intent();
+    // Note that the following is dependent on form generated class names being the same as
+    // their form names and all forms being in the same package.
+    serviceIntent.setClassName(this, getPackageName() + "." + taskName);
+    try {
+      stopService(serviceIntent);
+    } catch (ActivityNotFoundException e) {
+      dispatchErrorOccurredEvent(this, "StopService",
+          ErrorMessages.ERROR_SCREEN_NOT_FOUND, taskName);
+    }
   }
 
   @SimpleEvent(description = "Screen orientation changed")
@@ -1199,13 +1255,18 @@ public class Form extends Activity
   // ComponentContainer implementation
 
   @Override
-  public Activity $context() {
+  public Context $context() {
     return this;
   }
 
   @Override
   public Form $form() {
     return this;
+  }
+
+  @Override
+  public Task $task() {
+    return null;
   }
 
   @Override

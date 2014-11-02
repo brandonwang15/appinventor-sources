@@ -16,6 +16,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.appinventor.client.output.OdeLog;
+
 
 /**
  * This class represents a component on the component palette panel.
@@ -89,6 +91,11 @@ public class SimplePaletteItem extends DragSourcePanel {
   public boolean isVisibleComponent() {
     cacheInternalComponentPrototype();
     return componentPrototype.isVisibleComponent();
+  }
+
+  public boolean isTaskComponent() {
+    cacheInternalComponentPrototype();
+    return componentPrototype.isTaskComponent();
   }
 
   private void cacheInternalComponentPrototype() {

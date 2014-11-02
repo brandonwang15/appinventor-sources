@@ -77,7 +77,10 @@ Blockly.Yail['controls_choose'] = function() {
 // [lyn, 12/27/2012]
 Blockly.Yail['controls_forEach'] = function() {
   // For each loop.
-  var emptyListCode = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "make-yail-list" + Blockly.Yail.YAIL_SPACER;
+  var emptyListCode = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "make-yail-list" + Blockly.Yail.YAIL_SPACER;
   emptyListCode += Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
 
   emptyListCode += Blockly.Yail.YAIL_CLOSE_COMBINATION + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -145,7 +148,10 @@ Blockly.Yail['controls_nothing'] = function() {
 Blockly.Yail['controls_openAnotherScreen'] = function() {
   // Open another screen
   var argument0 = Blockly.Yail.valueToCode(this, 'SCREEN', Blockly.Yail.ORDER_NONE) || null;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "open-another-screen" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE 
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "open-another-screen" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + argument0 + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -158,7 +164,10 @@ Blockly.Yail['controls_openAnotherScreenWithStartValue'] = function() {
   // Open another screen with start value
   var argument0 = Blockly.Yail.valueToCode(this, 'SCREENNAME', Blockly.Yail.ORDER_NONE) || null;
   var argument1 = Blockly.Yail.valueToCode(this, 'STARTVALUE', Blockly.Yail.ORDER_NONE) || null;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "open-another-screen-with-start-value" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE 
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "open-another-screen-with-start-value" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + argument0 + Blockly.Yail.YAIL_SPACER + argument1 + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -169,7 +178,10 @@ Blockly.Yail['controls_openAnotherScreenWithStartValue'] = function() {
 
 Blockly.Yail['controls_getStartValue'] = function() {
   // Get start value
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "get-start-value" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE 
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "get-start-value" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -180,7 +192,10 @@ Blockly.Yail['controls_getStartValue'] = function() {
 
 Blockly.Yail['controls_closeScreen'] = function() {
   // Close screen
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "close-screen" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "close-screen" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -192,7 +207,10 @@ Blockly.Yail['controls_closeScreen'] = function() {
 Blockly.Yail['controls_closeScreenWithValue'] = function() {
   // Close screen with value
   var argument0 = Blockly.Yail.valueToCode(this, 'SCREEN', Blockly.Yail.ORDER_NONE) || null;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "close-screen-with-value" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "close-screen-with-value" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + argument0 + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -203,7 +221,10 @@ Blockly.Yail['controls_closeScreenWithValue'] = function() {
 
 Blockly.Yail['controls_closeApplication'] = function() {
   // Close application
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "close-application" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "close-application" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -214,7 +235,10 @@ Blockly.Yail['controls_closeApplication'] = function() {
 
 Blockly.Yail['controls_getPlainStartText'] = function() {
   // Get plain start text
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "get-plain-start-text" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "get-plain-start-text" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;
@@ -226,7 +250,10 @@ Blockly.Yail['controls_getPlainStartText'] = function() {
 Blockly.Yail['controls_closeScreenWithPlainText'] = function() {
   // Close screen with plain text
   var argument0 = Blockly.Yail.valueToCode(this, 'TEXT', Blockly.Yail.ORDER_NONE) || Blockly.Yail.YAIL_FALSE;
-  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE + "close-screen-with-plain-text" + Blockly.Yail.YAIL_SPACER;
+  var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + this.context
+    + Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER
+    + "close-screen-with-plain-text" + Blockly.Yail.YAIL_SPACER;
   code = code + Blockly.Yail.YAIL_OPEN_COMBINATION + Blockly.Yail.YAIL_LIST_CONSTRUCTOR + Blockly.Yail.YAIL_SPACER;
   code = code + argument0 + Blockly.Yail.YAIL_CLOSE_COMBINATION;
   code = code + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + Blockly.Yail.YAIL_OPEN_COMBINATION;

@@ -15,6 +15,7 @@ import org.json.JSONException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Arrays;
 
 /**
  * The YailList is a wrapper around the gnu.list.Pair class used
@@ -74,6 +75,15 @@ public class YailList extends Pair {
   public static YailList makeList(Collection vals) {
     LList newCdr = Pair.makeList(vals.toArray(), 0);
     return new YailList(newCdr);
+  }
+
+  /**
+   * Creates a YailList of specified length, with the same element.
+   */
+  public static YailList makeList(int length, Object element) {
+    Object[] objects = new Object[length];
+    Arrays.fill(objects, element);
+    return makeList(objects);
   }
 
   /**

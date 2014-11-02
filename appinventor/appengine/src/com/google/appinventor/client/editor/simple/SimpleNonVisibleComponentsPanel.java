@@ -8,7 +8,7 @@ package com.google.appinventor.client.editor.simple;
 
 import static com.google.appinventor.client.Ode.MESSAGES;
 import com.google.appinventor.client.editor.simple.components.MockComponent;
-import com.google.appinventor.client.editor.simple.components.MockForm;
+import com.google.appinventor.client.editor.simple.components.MockTopLevelContainer;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.widgets.dnd.DragSource;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
@@ -29,7 +29,8 @@ public final class SimpleNonVisibleComponentsPanel extends Composite implements 
   private final FlowPanel componentsPanel;
 
   // Backing mocked Simple form component
-  private MockForm form;
+  private MockTopLevelContainer form;
+  private boolean isTask = false;
 
   /**
    * Creates new component design panel for non-visible components.
@@ -50,12 +51,56 @@ public final class SimpleNonVisibleComponentsPanel extends Composite implements 
     initWidget(panel);
   }
 
+  public SimpleNonVisibleComponentsPanel(boolean showPanel) {
+    // Initialize UI
+    VerticalPanel panel = new VerticalPanel();
+    panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+
+    heading = new Label("");
+    heading.setStyleName("ya-NonVisibleComponentsHeader");
+    panel.add(heading);
+
+    componentsPanel = new FlowPanel();
+    componentsPanel.setStyleName("ode-SimpleUiDesignerNonVisibleComponents");
+    panel.add(componentsPanel);
+
+    if (showPanel) {
+      heading.setText(MESSAGES.nonVisibleComponentsHeader());
+      panel.setPixelSize(320, 480);
+    }
+
+    initWidget(panel);
+  }
+
+
+  public SimpleNonVisibleComponentsPanel(boolean showPanel, boolean isTask) {
+    // Initialize UI
+    this.isTask = isTask;
+    VerticalPanel panel = new VerticalPanel();
+    panel.setHorizontalAlignment(VerticalPanel.ALIGN_CENTER);
+
+    heading = new Label("");
+    heading.setStyleName("ya-NonVisibleComponentsHeader");
+    panel.add(heading);
+
+    componentsPanel = new FlowPanel();
+    componentsPanel.setStyleName("ode-SimpleUiDesignerNonVisibleComponents");
+    panel.add(componentsPanel);
+
+    if (showPanel) {
+      heading.setText(MESSAGES.nonVisibleComponentsHeader());
+      panel.setPixelSize(320, 480);
+    }
+
+    initWidget(panel);
+  }
+
   /**
    * Associates a Simple form component with this panel.
    *
    * @param form  backing mocked form component
    */
-  public void setForm(MockForm form) {
+  public void setForm(MockTopLevelContainer form) {
     this.form = form;
   }
 
@@ -98,9 +143,10 @@ public final class SimpleNonVisibleComponentsPanel extends Composite implements 
   //                    area while an eligible component is hovering over it.
   @Override
   public boolean onDragEnter(DragSource source, int x, int y) {
-    // Accept palette items corresponding to non-visible components only
+    // Accept palette items corresponding to non-visible task components only
     return (source instanceof SimplePaletteItem) &&
-        !((SimplePaletteItem) source).isVisibleComponent();
+        ((!isTask && !((SimplePaletteItem) source).isVisibleComponent()) ||
+        (isTask && ((SimplePaletteItem) source).isTaskComponent()));
   }
 
   @Override

@@ -119,7 +119,7 @@ public class Voting extends AndroidNonvisibleComponent implements Component {
 
     androidUIHandler = new Handler();
     theContainer = container;
-    activityContext = container.$context();
+    activityContext = (Activity) container.$context();
 
     // We set the initial value of serviceURL to be the
     // demo Web service

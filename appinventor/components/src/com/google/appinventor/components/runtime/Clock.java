@@ -38,15 +38,16 @@ import java.util.Calendar;
     nonVisible = true,
     iconName = "images/clock.png")
 @SimpleObject
-public final class Clock extends AndroidNonvisibleComponent
-    implements Component, AlarmHandler, OnStopListener, OnResumeListener, OnDestroyListener,
-               Deleteable {
+public final class Clock extends AndroidNonVisibleTaskComponent
+    implements Component, AlarmHandler, OnStopListener, OnResumeListener,
+               OnDestroyListener, Deleteable {
   private static final int DEFAULT_INTERVAL = 1000;  // ms
   private static final boolean DEFAULT_ENABLED = true;
 
   private TimerInternal timerInternal;
   private boolean timerAlwaysFires = true;
   private boolean onScreen = false;
+  private boolean isTask = false;
 
   /**
    * Creates a new Clock component.
@@ -54,13 +55,18 @@ public final class Clock extends AndroidNonvisibleComponent
    * @param container ignored (because this is a non-visible component)
    */
   public Clock(ComponentContainer container) {
-    super(container.$form());
+    super(container);
     timerInternal = new TimerInternal(this, DEFAULT_ENABLED, DEFAULT_INTERVAL);
 
     // Set up listeners
-    form.registerForOnResume(this);
-    form.registerForOnStop(this);
-    form.registerForOnDestroy(this);
+    if (form != null) {
+      form.registerForOnResume(this);
+      form.registerForOnStop(this);
+      form.registerForOnDestroy(this);
+    } else {
+      isTask = true;
+      task.registerForOnDestroy(this);
+    }
 
     if (form instanceof ReplForm) {
       // In REPL, if this Clock component was added to the project after the onResume call occurred,
@@ -81,7 +87,7 @@ public final class Clock extends AndroidNonvisibleComponent
   @SimpleEvent(
       description = "Timer has gone off.")
   public void Timer() {
-    if (timerAlwaysFires || onScreen) {
+    if (timerAlwaysFires || onScreen || isTask) {
       EventDispatcher.dispatchEvent(this, "Timer");
     }
   }

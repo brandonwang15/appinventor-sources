@@ -118,7 +118,9 @@ public class AppInvHTTPD extends NanoHTTPD {
     }
 
 
-    if (uri.equals("/_newblocks")) { // Handle AJAX calls from the newblocks code
+    if (uri.equals("/_newtaskblocks")) {
+      Log.d(LOG_TAG, "Hit the new task blocks endpoint");
+    } else if (uri.equals("/_newblocks")) { // Handle AJAX calls from the newblocks code
       String inSeq = parms.getProperty("seq", "0");
       int iseq = Integer.parseInt(inSeq);
       String blockid = parms.getProperty("blockid");

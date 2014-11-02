@@ -656,7 +656,7 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
 
   public Canvas(ComponentContainer container) {
     super(container);
-    context = container.$context();
+    context = ((Activity) container.$context());
 
     // Create view and add it to its designated container.
     view = new CanvasView(context);
@@ -749,6 +749,11 @@ public final class Canvas extends AndroidViewComponent implements ComponentConta
   @Override
   public Form $form() {
     return container.$form();
+  }
+
+  @Override
+  public Task $task() {
+    return null;
   }
 
   @Override

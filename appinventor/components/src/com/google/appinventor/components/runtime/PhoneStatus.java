@@ -54,7 +54,7 @@ public class PhoneStatus extends AndroidNonvisibleComponent implements Component
   public PhoneStatus(ComponentContainer container) {
     super(container.$form());
     this.form = container.$form();
-    activity = container.$context();
+    activity = (Activity) container.$context();
     if (mainInstance == null) { // First one?
       mainInstance = this;
     }

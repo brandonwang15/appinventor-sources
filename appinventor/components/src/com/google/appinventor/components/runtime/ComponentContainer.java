@@ -6,7 +6,7 @@
 
 package com.google.appinventor.components.runtime;
 
-import android.app.Activity;
+import android.content.Context;
 
 /**
  * Components that can contain other components need to implement this
@@ -20,7 +20,7 @@ public interface ComponentContainer {
    *
    * @return  activity context
    */
-  Activity $context();
+  Context $context();
 
   /**
    * Returns the form that ultimately contains this container.
@@ -28,6 +28,7 @@ public interface ComponentContainer {
    * @return  form
    */
   Form $form();
+  Task $task();
 
   /**
    * Adds a component to a container.
