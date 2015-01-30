@@ -5,10 +5,10 @@
 
 (define (stringTest1)
   (and
-    (equal? "12" (call-yail-primitive string-append (*list-for-runtime* 1 2 )
+    (equal? "12" (call-yail-primitive "Form" string-append (*list-for-runtime* 1 2 )
                                                    '( text text)
                                                       "make text"))
-    (equal? 3 (call-yail-primitive + (*list-for-runtime* "1" 2)
+    (equal? 3 (call-yail-primitive "Form" + (*list-for-runtime* "1" 2)
                                       '( number number)
                                       "+"))))
 
@@ -20,11 +20,11 @@
 
 (define (testDefOfVariable)
   (def foo "bar")
-  (equal? "bar" (get-var foo)))
+  (equal? "bar" (get-var "Form" foo)))
 
 (define (testDefOfProcedure)
   (def (foo x) x)
-  (equal? "baz" ((get-var foo) "baz")))
+  (equal? "baz" ((get-var "Form" foo) "baz")))
 
 
 
@@ -33,18 +33,20 @@
    (if
     (yail-equal?  (lexical-value a)  0)
     (begin (lexical-value b) )
-    (begin ( (get-var tailRecAdd)
+    (begin ( (get-var "Form" tailRecAdd)
              (call-yail-primitive
+              "Form"
               -
               (*list-for-runtime* (lexical-value a)  1)
               '( number number)
               "-")
              (call-yail-primitive
+              "Form"
               +
               (*list-for-runtime* (lexical-value b)  1)
               '( number number)
               "+") )) ) )
- (= ((get-var tailRecAdd) 800 800) 1600)
+ (= ((get-var "Form" tailRecAdd) 800 800) 1600)
  ;; There's something funny about how Kawa is handling tail recursion
  ;; The test above with a=800 works, but the test with a=900 gets a
  ;; stack overflow.

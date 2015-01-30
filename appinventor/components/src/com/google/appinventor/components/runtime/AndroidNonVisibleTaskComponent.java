@@ -23,12 +23,18 @@ public abstract class AndroidNonVisibleTaskComponent implements Component {
    * @param container the container that this component will be placed in
    */
   protected AndroidNonVisibleTaskComponent(ComponentContainer container) {
-    if (container.$form() != null) {
-      this.form = container.$form();
-      this.task = null;
+    // The container is null for some test instances
+    if (container != null) {
+      if (container.$form() != null) {
+        this.form = container.$form();
+        this.task = null;
+      } else {
+        this.form = null;
+        this.task = container.$task();
+      }
     } else {
       this.form = null;
-      this.task = container.$task();
+      this.task = null;
     }
   }
 

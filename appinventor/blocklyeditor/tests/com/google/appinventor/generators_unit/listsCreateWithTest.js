@@ -58,7 +58,7 @@
 ////////////////////////////////////////
 
 var expected =
-  "(call-yail-primitive make-yail-list (*list-for-runtime* ) '() \"make a list\")";
+  "(call-yail-primitive \"Form\" make-yail-list (*list-for-runtime* ) '() \"make a list\")";
 
 var delayedGenerator = function () { return Blockly.Yail.lists_create_with ; } ;
 

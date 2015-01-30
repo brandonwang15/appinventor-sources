@@ -14,7 +14,7 @@
 
 var expected =
    "     \
-   (call-yail-primitive string-split              \
+   (call-yail-primitive \"Form\" string-split              \
           (*list-for-runtime* \"\" 1)             \
           '(text text)                            \
            \"split\")                             \

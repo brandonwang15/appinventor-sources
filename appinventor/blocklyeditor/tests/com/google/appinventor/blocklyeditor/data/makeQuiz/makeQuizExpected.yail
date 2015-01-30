@@ -5,25 +5,25 @@ $Source $Yail
 (define-form appinventor.ai_Jeffrey_Schiller.makeQuiz.Screen1 Screen1)
 (require <com.google.youngandroid.runtime>)
 
-(def (p$displayQAs )  (set-and-coerce-property! 'QuestionsAnswersLabel 'Text "" 'text)(set-var! g$answerIndex 1)(foreach $question (begin   (set-var! g$answer (call-yail-primitive yail-list-get-item (*list-for-runtime* (get-var g$AnswerList) (get-var g$answerIndex)) '(list number) "select list item"))(set-var! g$answerIndex (call-yail-primitive + (*list-for-runtime* (get-var g$answerIndex) 1 ) '(number number ) "+"))(set-and-coerce-property! 'QuestionsAnswersLabel 'Text (call-yail-primitive string-append (*list-for-runtime* (get-property 'QuestionsAnswersLabel 'Text) "\n" (lexical-value $question) ":" (get-var g$answer) ) '(text text text text text ) "join") 'text)) (get-var g$QuestionList)))
-(def g$QuestionList (call-yail-primitive make-yail-list (*list-for-runtime* ) '() "make a list"))
-(def g$AnswerList (call-yail-primitive make-yail-list (*list-for-runtime* ) '() "make a list"))
+(def (p$displayQAs )  (set-and-coerce-property! "Form" 'QuestionsAnswersLabel 'Text "" 'text)(set-var! "Form" g$answerIndex 1)(foreach $question (begin   (set-var! "Form" g$answer (call-yail-primitive "Form" yail-list-get-item (*list-for-runtime* (get-var "Form" g$AnswerList) (get-var "Form" g$answerIndex)) '(list number) "select list item"))(set-var! "Form" g$answerIndex (call-yail-primitive "Form" + (*list-for-runtime* (get-var "Form" g$answerIndex) 1 ) '(number number ) "+"))(set-and-coerce-property! "Form" 'QuestionsAnswersLabel 'Text (call-yail-primitive "Form" string-append (*list-for-runtime* (get-property "Form" 'QuestionsAnswersLabel 'Text) "\n" (lexical-value $question) ":" (get-var "Form" g$answer) ) '(text text text text text ) "join") 'text)) (get-var "Form" g$QuestionList)))
+(def g$QuestionList (call-yail-primitive "Form" make-yail-list (*list-for-runtime* ) '() "make a list"))
+(def g$AnswerList (call-yail-primitive "Form" make-yail-list (*list-for-runtime* ) '() "make a list"))
 (def g$answer "text")
 (def g$answerIndex 1)
 ;;; Screen1
 
-(do-after-form-creation (set-and-coerce-property! 'Screen1 'BackgroundColor #xFFCCCCCC 'number)
- (set-and-coerce-property! 'Screen1 'Title "Make-A-Quiz" 'text)
+(do-after-form-creation (set-and-coerce-property! "Form" 'Screen1 'BackgroundColor #xFFCCCCCC 'number)
+ (set-and-coerce-property! "Form" 'Screen1 'Title "Make-A-Quiz" 'text)
 )
 
 (define-event Screen1 Initialize()(set-this-form)
-    (call-component-method 'TinyWebDB1 'GetValue (*list-for-runtime* "questions") '(text))(call-component-method 'TinyWebDB1 'GetValue (*list-for-runtime* "answers") '(text)))
+    (call-component-method "Form" 'TinyWebDB1 'GetValue (*list-for-runtime* "questions") '(text))(call-component-method "Form" 'TinyWebDB1 'GetValue (*list-for-runtime* "answers") '(text)))
 ;;; Label4
 
 (add-component Screen1 Label Label4 
-(set-and-coerce-property! 'Label4 'FontItalic #t 'boolean)
+(set-and-coerce-property! "Form" 'Label4 'FontItalic #t 'boolean)
 
-(set-and-coerce-property! 'Label4 'Text "enter a new question-answer pair:" 'text)
+(set-and-coerce-property! "Form" 'Label4 'Text "enter a new question-answer pair:" 'text)
 
 )
 
@@ -35,64 +35,64 @@ $Source $Yail
 ;;; Label1
 
 (add-component TableArrangement1 Label Label1 
-(set-and-coerce-property! 'Label1 'Text "Question:" 'text)
+(set-and-coerce-property! "Form" 'Label1 'Text "Question:" 'text)
 
-(set-and-coerce-property! 'Label1 'Column 0 'number)
+(set-and-coerce-property! "Form" 'Label1 'Column 0 'number)
 
-(set-and-coerce-property! 'Label1 'Row 0 'number)
+(set-and-coerce-property! "Form" 'Label1 'Row 0 'number)
 
 )
 
 ;;; Label2
 
 (add-component TableArrangement1 Label Label2 
-(set-and-coerce-property! 'Label2 'Text "Answer:" 'text)
+(set-and-coerce-property! "Form" 'Label2 'Text "Answer:" 'text)
 
-(set-and-coerce-property! 'Label2 'Column 0 'number)
+(set-and-coerce-property! "Form" 'Label2 'Column 0 'number)
 
-(set-and-coerce-property! 'Label2 'Row 1 'number)
+(set-and-coerce-property! "Form" 'Label2 'Row 1 'number)
 
 )
 
 ;;; QuestionText
 
 (add-component TableArrangement1 TextBox QuestionText 
-(set-and-coerce-property! 'QuestionText 'Hint "Enter a question" 'text)
+(set-and-coerce-property! "Form" 'QuestionText 'Hint "Enter a question" 'text)
 
-(set-and-coerce-property! 'QuestionText 'Column 1 'number)
+(set-and-coerce-property! "Form" 'QuestionText 'Column 1 'number)
 
-(set-and-coerce-property! 'QuestionText 'Row 0 'number)
+(set-and-coerce-property! "Form" 'QuestionText 'Row 0 'number)
 
 )
 
 ;;; AnswerText
 
 (add-component TableArrangement1 TextBox AnswerText 
-(set-and-coerce-property! 'AnswerText 'Hint "enter answer" 'text)
+(set-and-coerce-property! "Form" 'AnswerText 'Hint "enter answer" 'text)
 
-(set-and-coerce-property! 'AnswerText 'Column 1 'number)
+(set-and-coerce-property! "Form" 'AnswerText 'Column 1 'number)
 
-(set-and-coerce-property! 'AnswerText 'Row 1 'number)
+(set-and-coerce-property! "Form" 'AnswerText 'Row 1 'number)
 
 )
 
 ;;; SubmitButton
 
 (add-component Screen1 Button SubmitButton 
-(set-and-coerce-property! 'SubmitButton 'Text "Submit" 'text)
+(set-and-coerce-property! "Form" 'SubmitButton 'Text "Submit" 'text)
 
 )
 
 (define-event SubmitButton Click()(set-this-form)
-    (call-yail-primitive yail-list-add-to-list! (*list-for-runtime* (get-var g$QuestionList) (get-property 'QuestionText 'Text) ) '(list any ) "add items to list")(call-yail-primitive yail-list-add-to-list! (*list-for-runtime* (get-var g$AnswerList) (get-property 'AnswerText 'Text) ) '(list any ) "add items to list")((get-var p$displayQAs) )(set-and-coerce-property! 'QuestionText 'Text "" 'text)(set-and-coerce-property! 'AnswerText 'Text "" 'text)(call-component-method 'TinyWebDB1 'StoreValue (*list-for-runtime* "questions"  (get-var g$QuestionList)) '(text any))(call-component-method 'TinyWebDB1 'StoreValue (*list-for-runtime* "answers"  (get-var g$AnswerList)) '(text any)))
+    (call-yail-primitive "Form" yail-list-add-to-list! (*list-for-runtime* (get-var "Form" g$QuestionList) (get-property "Form" 'QuestionText 'Text) ) '(list any ) "add items to list")(call-yail-primitive "Form" yail-list-add-to-list! (*list-for-runtime* (get-var "Form" g$AnswerList) (get-property "Form" 'AnswerText 'Text) ) '(list any ) "add items to list")((get-var "Form" p$displayQAs) )(set-and-coerce-property! "Form" 'QuestionText 'Text "" 'text)(set-and-coerce-property! "Form" 'AnswerText 'Text "" 'text)(call-component-method "Form" 'TinyWebDB1 'StoreValue (*list-for-runtime* "questions"  (get-var "Form" g$QuestionList)) '(text any))(call-component-method "Form" 'TinyWebDB1 'StoreValue (*list-for-runtime* "answers"  (get-var "Form" g$AnswerList)) '(text any)))
 ;;; Label3
 
 (add-component Screen1 Label Label3 
-(set-and-coerce-property! 'Label3 'FontBold #t 'boolean)
+(set-and-coerce-property! "Form" 'Label3 'FontBold #t 'boolean)
 
-(set-and-coerce-property! 'Label3 'FontSize 18.0 'number)
+(set-and-coerce-property! "Form" 'Label3 'FontSize 18.0 'number)
 
-(set-and-coerce-property! 'Label3 'Text "Quiz Questions and Answers" 'text)
+(set-and-coerce-property! "Form" 'Label3 'Text "Quiz Questions and Answers" 'text)
 
 )
 
@@ -104,10 +104,10 @@ $Source $Yail
 ;;; TinyWebDB1
 
 (add-component Screen1 TinyWebDB TinyWebDB1 
-(set-and-coerce-property! 'TinyWebDB1 'ServiceURL "foobar.com" 'text)
+(set-and-coerce-property! "Form" 'TinyWebDB1 'ServiceURL "foobar.com" 'text)
 
 )
 
 (define-event TinyWebDB1 GotValue($tagFromWebDB $valueFromWebDB)(set-this-form)
-    (if (call-yail-primitive yail-list? (*list-for-runtime* (lexical-value $valueFromWebDB) ) '(any) "is a list?") (begin   (if (call-yail-primitive yail-equal? (*list-for-runtime* (lexical-value $tagFromWebDB) "questions") '(any any) "=") (begin   (set-var! g$QuestionList (lexical-value $valueFromWebDB))) (begin   (set-var! g$AnswerList (lexical-value $valueFromWebDB))))(if (call-yail-primitive yail-equal? (*list-for-runtime* (call-yail-primitive yail-list-length (*list-for-runtime* (get-var g$QuestionList) ) '(list) "length of list") (call-yail-primitive yail-list-length (*list-for-runtime* (get-var g$AnswerList) ) '(list) "length of list")) '(any any) "=") (begin   ((get-var p$displayQAs) ))))))
+    (if (call-yail-primitive "Form" yail-list? (*list-for-runtime* (lexical-value $valueFromWebDB) ) '(any) "is a list?") (begin   (if (call-yail-primitive "Form" yail-equal? (*list-for-runtime* (lexical-value $tagFromWebDB) "questions") '(any any) "=") (begin   (set-var! "Form" g$QuestionList (lexical-value $valueFromWebDB))) (begin   (set-var! "Form" g$AnswerList (lexical-value $valueFromWebDB))))(if (call-yail-primitive "Form" yail-equal? (*list-for-runtime* (call-yail-primitive "Form" yail-list-length (*list-for-runtime* (get-var "Form" g$QuestionList) ) '(list) "length of list") (call-yail-primitive "Form" yail-list-length (*list-for-runtime* (get-var "Form" g$AnswerList) ) '(list) "length of list")) '(any any) "=") (begin   ((get-var "Form" p$displayQAs) ))))))
 (init-runtime)

@@ -103,7 +103,6 @@ Blockly.Yail['math_arithmetic_list'] = function(mode,block) {
   var tuple = Blockly.Yail.math_arithmetic.OPERATORS[mode];
   var operator = tuple[0];
   var order = tuple[1];
-  console.log("MATH arithmetic " + block.context);
 
   var code = Blockly.Yail.YAIL_CALL_YAIL_PRIMITIVE
       + Blockly.Yail.YAIL_DOUBLE_QUOTE + block.context

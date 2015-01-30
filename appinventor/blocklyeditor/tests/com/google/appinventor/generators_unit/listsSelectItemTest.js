@@ -14,9 +14,9 @@
 
 var expected =
    "     \
-   (call-yail-primitive yail-list-get-item        \
+   (call-yail-primitive \"Form\" yail-list-get-item        \
           (*list-for-runtime*                     \
-             (call-yail-primitive make-yail-list   \
+             (call-yail-primitive \"Form\" make-yail-list   \
                    (*list-for-runtime*)           \
                    '()                            \
                     \"make a list\") 1)           \

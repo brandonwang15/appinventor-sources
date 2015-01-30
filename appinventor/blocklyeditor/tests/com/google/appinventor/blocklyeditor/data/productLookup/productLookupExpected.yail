@@ -7,38 +7,38 @@ $Source $Yail
 
 ;;; Screen1
 
-(do-after-form-creation (set-and-coerce-property! 'Screen1 'AlignHorizontal 3 'number)
- (set-and-coerce-property! 'Screen1 'Title "Product Lookup" 'text)
+(do-after-form-creation (set-and-coerce-property! "Form" 'Screen1 'AlignHorizontal 3 'number)
+ (set-and-coerce-property! "Form" 'Screen1 'Title "Product Lookup" 'text)
 )
 
 ;;; Label2
 
 (add-component Screen1 Label Label2 
-(set-and-coerce-property! 'Label2 'FontSize 20 'number)
+(set-and-coerce-property! "Form" 'Label2 'FontSize 20 'number)
 
-(set-and-coerce-property! 'Label2 'Text "Scan the barcode of any product you wish to look up." 'text)
+(set-and-coerce-property! "Form" 'Label2 'Text "Scan the barcode of any product you wish to look up." 'text)
 
-(set-and-coerce-property! 'Label2 'TextAlignment 1 'number)
+(set-and-coerce-property! "Form" 'Label2 'TextAlignment 1 'number)
 
-(set-and-coerce-property! 'Label2 'Width -2 'number)
+(set-and-coerce-property! "Form" 'Label2 'Width -2 'number)
 
-(set-and-coerce-property! 'Label2 'Height 40 'number)
+(set-and-coerce-property! "Form" 'Label2 'Height 40 'number)
 
 )
 
 ;;; Button1
 
 (add-component Screen1 Button Button1 
-(set-and-coerce-property! 'Button1 'FontBold #t 'boolean)
+(set-and-coerce-property! "Form" 'Button1 'FontBold #t 'boolean)
 
-(set-and-coerce-property! 'Button1 'FontSize 30 'number)
+(set-and-coerce-property! "Form" 'Button1 'FontSize 30 'number)
 
-(set-and-coerce-property! 'Button1 'Text "Scan Now" 'text)
+(set-and-coerce-property! "Form" 'Button1 'Text "Scan Now" 'text)
 
 )
 
 (define-event Button1 Click()(set-this-form)
-    (call-component-method 'BarcodeScanner1 'DoScan (*list-for-runtime*) '()))
+    (call-component-method "Form" 'BarcodeScanner1 'DoScan (*list-for-runtime*) '()))
 ;;; HorizontalArrangement1
 
 (add-component Screen1 HorizontalArrangement HorizontalArrangement1 
@@ -47,7 +47,7 @@ $Source $Yail
 ;;; Label3
 
 (add-component HorizontalArrangement1 Label Label3 
-(set-and-coerce-property! 'Label3 'Text "UPC:" 'text)
+(set-and-coerce-property! "Form" 'Label3 'Text "UPC:" 'text)
 
 )
 
@@ -67,5 +67,5 @@ $Source $Yail
 )
 
 (define-event BarcodeScanner1 AfterScan($result)(set-this-form)
-    (set-and-coerce-property! 'Label1 'Text (lexical-value $result) 'text)(set-and-coerce-property! 'ActivityStarter1 'Action "android.intent.action.VIEW" 'text)(set-and-coerce-property! 'ActivityStarter1 'DataUri (call-yail-primitive string-append (*list-for-runtime* "http://www.upcdatabase.com/item/" (lexical-value $result) ) '(text text ) "join") 'text)(call-component-method 'ActivityStarter1 'StartActivity (*list-for-runtime*) '()))
+    (set-and-coerce-property! "Form" 'Label1 'Text (lexical-value $result) 'text)(set-and-coerce-property! "Form" 'ActivityStarter1 'Action "android.intent.action.VIEW" 'text)(set-and-coerce-property! "Form" 'ActivityStarter1 'DataUri (call-yail-primitive "Form" string-append (*list-for-runtime* "http://www.upcdatabase.com/item/" (lexical-value $result) ) '(text text ) "join") 'text)(call-component-method "Form" 'ActivityStarter1 'StartActivity (*list-for-runtime*) '()))
 (init-runtime)

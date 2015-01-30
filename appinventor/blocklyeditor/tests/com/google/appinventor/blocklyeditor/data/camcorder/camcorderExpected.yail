@@ -7,37 +7,37 @@ $Source $Yail
 
 ;;; Screen1
 
-(do-after-form-creation (set-and-coerce-property! 'Screen1 'AlignHorizontal 3 'number)
- (set-and-coerce-property! 'Screen1 'Title "CamcorderTest" 'text)
+(do-after-form-creation (set-and-coerce-property! "Form" 'Screen1 'AlignHorizontal 3 'number)
+ (set-and-coerce-property! "Form" 'Screen1 'Title "CamcorderTest" 'text)
 )
 
 (define-event Screen1 Initialize()(set-this-form)
-    (set-and-coerce-property! 'VideoPlayer1 'Visible #f 'boolean))
+    (set-and-coerce-property! "Form" 'VideoPlayer1 'Visible #f 'boolean))
 ;;; Button1
 
 (add-component Screen1 Button Button1 
-(set-and-coerce-property! 'Button1 'Text "Take a Video" 'text)
+(set-and-coerce-property! "Form" 'Button1 'Text "Take a Video" 'text)
 
 )
 
 (define-event Button1 Click()(set-this-form)
-    (call-component-method 'Camcorder1 'RecordVideo (*list-for-runtime*) '()))
+    (call-component-method "Form" 'Camcorder1 'RecordVideo (*list-for-runtime*) '()))
 ;;; VideoPlayer1
 
 (add-component Screen1 VideoPlayer VideoPlayer1 
-(set-and-coerce-property! 'VideoPlayer1 'Width -2 'number)
+(set-and-coerce-property! "Form" 'VideoPlayer1 'Width -2 'number)
 
-(set-and-coerce-property! 'VideoPlayer1 'Height 300 'number)
+(set-and-coerce-property! "Form" 'VideoPlayer1 'Height 300 'number)
 
 )
 
 (define-event VideoPlayer1 Completed()(set-this-form)
-    (set-and-coerce-property! 'VideoPlayer1 'Visible #f 'boolean))
+    (set-and-coerce-property! "Form" 'VideoPlayer1 'Visible #f 'boolean))
 ;;; Camcorder1
 
 (add-component Screen1 Camcorder Camcorder1 
 )
 
 (define-event Camcorder1 AfterRecording($clip)(set-this-form)
-    (set-and-coerce-property! 'VideoPlayer1 'Source (lexical-value $clip) 'text)(set-and-coerce-property! 'VideoPlayer1 'Visible #t 'boolean)(call-component-method 'VideoPlayer1 'Start (*list-for-runtime*) '()))
+    (set-and-coerce-property! "Form" 'VideoPlayer1 'Source (lexical-value $clip) 'text)(set-and-coerce-property! "Form" 'VideoPlayer1 'Visible #t 'boolean)(call-component-method "Form" 'VideoPlayer1 'Start (*list-for-runtime*) '()))
 (init-runtime)

@@ -113,32 +113,32 @@ public class YailEvalTest extends TestCase {
 
   public void testIsNumber() throws Throwable {
     assertTrue((Boolean) scheme.eval(
-        "(call-yail-primitive is-number? (*list-for-runtime* \"1.01\") '(any) \"is a number?\")"));
+        "(call-yail-primitive \"Form\" is-number? (*list-for-runtime* \"1.01\") '(any) \"is a number?\")"));
     assertFalse((Boolean) scheme.eval(
-    "(call-yail-primitive is-number? (*list-for-runtime* \"1.01a\") '(any) \"is a number?\")"));
+    "(call-yail-primitive \"Form\" is-number? (*list-for-runtime* \"1.01a\") '(any) \"is a number?\")"));
     assertTrue((Boolean) scheme.eval(
-    "(call-yail-primitive is-number? (*list-for-runtime* 100.01) '(any) \"is a number?\")"));
+    "(call-yail-primitive \"Form\" is-number? (*list-for-runtime* 100.01) '(any) \"is a number?\")"));
   }
 
   public void testCallCoercions() throws Throwable {
     String schemeString =
-        "(call-yail-primitive string-append (*list-for-runtime* 1 2 3) '(text text text) \"join\")";
+        "(call-yail-primitive \"Form\" string-append (*list-for-runtime* 1 2 3) '(text text text) \"join\")";
     assertEquals("123", scheme.eval(schemeString).toString());
-    schemeString = "(call-yail-primitive +  " +
+    schemeString = "(call-yail-primitive \"Form\" +  " +
         "(*list-for-runtime* \"1\" \"2\" \"3\") '(number number number) \"+\")";
     assertEquals(6, ((IntNum) scheme.eval(schemeString)).intValue());
-    schemeString = "(call-yail-primitive string-append (*list-for-runtime* (list 1) \"2\" 3) " +
+    schemeString = "(call-yail-primitive \"Form\" string-append (*list-for-runtime* (list 1) \"2\" 3) " +
         "'(text text text) \"join\")";
     assertEquals("(1)23", scheme.eval(schemeString).toString());
   }
 
   public void testDecimalReaderRoundoff() throws Throwable {
     assertTrue((Boolean) scheme.eval(
-    "(call-yail-primitive yail-equal? (*list-for-runtime* 1.00000 \"1\") '(any any) \"=\")"));
+    "(call-yail-primitive \"Form\" yail-equal? (*list-for-runtime* 1.00000 \"1\") '(any any) \"=\")"));
     assertTrue((Boolean) scheme.eval(
-    "(call-yail-primitive yail-equal? (*list-for-runtime* 1.00000 1) '(any any) \"=\")"));
+    "(call-yail-primitive \"Form\" yail-equal? (*list-for-runtime* 1.00000 1) '(any any) \"=\")"));
     assertFalse((Boolean) scheme.eval(
-    "(call-yail-primitive yail-equal? (*list-for-runtime* 1.000001 \"1\") '(any any) \"=\")"));
+    "(call-yail-primitive \"Form\" yail-equal? (*list-for-runtime* 1.000001 \"1\") '(any any) \"=\")"));
     // This test is here as a comment -- it's what Kawa does -- but we don't have to
     // assert it as a test requirement
     //  assertTrue((Boolean) scheme.eval(
@@ -147,31 +147,31 @@ public class YailEvalTest extends TestCase {
   }
 
   public void testTypedCoercions() throws Throwable {
-    String schemeString = "(coerce-arg (Float 5) 'text)";
+    String schemeString = "(coerce-arg \"Form\" (Float 5) 'text)";
     assertEquals("5.0", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg (Double 3.33333) 'number)";
+    schemeString = "(coerce-arg \"Form\" (Double 3.33333) 'number)";
     assertEquals("3.33333", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg (Integer 10453) 'text)";
+    schemeString = "(coerce-arg \"Form\" (Integer 10453) 'text)";
     assertEquals("10453", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg (Long 0341234123412343423) 'text)";
+    schemeString = "(coerce-arg \"Form\" (Long 0341234123412343423) 'text)";
     assertEquals("341234123412343423", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg (Short 12) 'text)";
+    schemeString = "(coerce-arg \"Form\" (Short 12) 'text)";
     assertEquals("12", scheme.eval(schemeString).toString());
   }
 
   public void testNonCoercibleValues() throws Throwable {
-    String schemeString = "(coerce-arg (Short 12) 'boolean)";
+    String schemeString = "(coerce-arg \"Form\" (Short 12) 'boolean)";
     assertEquals("(non-coercible)", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg (Float 5.45) 'list)";
+    schemeString = "(coerce-arg \"Form\" (Float 5.45) 'list)";
     assertEquals("(non-coercible)", scheme.eval(schemeString).toString());
-    schemeString = "(coerce-arg \"false\" 'boolean)";
+    schemeString = "(coerce-arg \"Form\" \"false\" 'boolean)";
     assertEquals("(non-coercible)", scheme.eval(schemeString).toString());
   }
 
   public void testCoercionFailureOnProcedureCall() throws Throwable {
     String schemeString =
         " (try-catch " +
-        "  (call-yail-primitive + (*list-for-runtime* \"foo\" 4) '(number number) \"+\") " +
+        "  (call-yail-primitive \"Form\" + (*list-for-runtime* \"foo\" 4) '(number number) \"+\") " +
         " (exception com.google.appinventor.components.runtime.errors.YailRuntimeError " +
         " \"runtime-error\" " +
         "))";
@@ -182,7 +182,7 @@ public class YailEvalTest extends TestCase {
   public void testCoercionFailureOnPropertySet() throws Throwable {
     String schemeString =
         "(def Button3 'dontcare) " +
-        "(set-and-coerce-property! 'Button3 'FontSize \"foo\" 'number) ";
+        "(set-and-coerce-property! \"Form\" 'Button3 'FontSize \"foo\" 'number) ";
     try {
       scheme.eval(schemeString);
       fail();
@@ -485,7 +485,7 @@ public class YailEvalTest extends TestCase {
 
     schemeInputString = "(begin " +
         "(define x (make-yail-list \"a\" ))" +
-        " (call-yail-primitive yail-list-add-to-list! " +
+        " (call-yail-primitive \"Form\" yail-list-add-to-list! " +
         " (*list-for-runtime* x  \"hi\" ) '(list any)  \"add items to list\") " +
         "(coerce-to-string x)" +
         ")";
@@ -495,7 +495,7 @@ public class YailEvalTest extends TestCase {
     schemeInputString = "(begin " +
         "(define x (make-yail-list \"a\" ))" +
         "(define y (make-yail-list \"ho\" ))" +
-        " (call-yail-primitive yail-list-append! " +
+        " (call-yail-primitive \"Form\" yail-list-append! " +
         " (*list-for-runtime* x  y ) '(list any)  \"append to list\") " +
         "(coerce-to-string x)" +
         ")";
@@ -506,9 +506,9 @@ public class YailEvalTest extends TestCase {
         "(define x (make-yail-list \"a\" ))" +
         "(define y (make-yail-list \"ho\" ))" +
         "(define z (make-yail-list \"hum\" ))" +
-        " (call-yail-primitive yail-list-append! " +
+        " (call-yail-primitive \"Form\" yail-list-append! " +
         " (*list-for-runtime* x  y ) '(list any)  \"append to list\") " +
-        " (call-yail-primitive yail-list-append! " +
+        " (call-yail-primitive \"Form\" yail-list-append! " +
         " (*list-for-runtime* x  z ) '(list any)  \"append to list\") " +
         "(coerce-to-string x)" +
         ")";
@@ -519,9 +519,9 @@ public class YailEvalTest extends TestCase {
         "(define x (make-yail-list \"a\" ))" +
         "(define y (make-yail-list \"ho\" ))" +
         "(define z (make-yail-list \"hum\" ))" +
-        " (call-yail-primitive yail-list-append! " +
+        " (call-yail-primitive \"Form\" yail-list-append! " +
         " (*list-for-runtime* x  y ) '(list any)  \"append to list\") " +
-        " (call-yail-primitive yail-list-append! " +
+        " (call-yail-primitive \"Form\"yail-list-append! " +
         " (*list-for-runtime* x  z ) '(list any)  \"append to list\") " +
         "(coerce-to-string y)" +
         ")";
@@ -570,13 +570,13 @@ public class YailEvalTest extends TestCase {
         "(def x 0)" +
         "(foreach y " +
                   "(begin " +
-                      "(set-var! x " +
-                         "(call-yail-primitive " +
+                      "(set-var! \"Form\" x " +
+                         "(call-yail-primitive \"Form\" " +
                             "+" +
-                            "(*list-for-runtime* (get-var x)  y)" +
+                            "(*list-for-runtime* (get-var \"Form\" x)  y)" +
                             "'( number number) \"+\")))" +
                  "(make-yail-list  1 2 3 ))" +
-         "(get-var x)" +
+         "(get-var \"Form\" x)" +
         ")";
     schemeResultString = "6";
     assertEquals(schemeResultString, scheme.eval(schemeInputString).toString());
@@ -601,14 +601,14 @@ public class YailEvalTest extends TestCase {
         "(def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " 1  100 1) "  +
-        " (get-var x) " +
+        " (get-var \"Form\" x) " +
          "  )";
     String schemeResultString = "5050";
     assertEquals(schemeResultString, scheme.eval(schemeInputString).toString());
@@ -620,14 +620,14 @@ public class YailEvalTest extends TestCase {
         "(def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " -1 -100 -1) "  +
-        " (get-var x) " +
+        " (get-var \"Form\" x) " +
          "  )";
     String schemeResultString = "-5050";
     assertEquals(schemeResultString, scheme.eval(schemeInputString).toString());
@@ -640,14 +640,14 @@ public class YailEvalTest extends TestCase {
         "(def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " \"1\"  \"100\"  \"1\") "  +
-        " (get-var x) " +
+        " (get-var \"Form\" x) " +
          "  )";
     String schemeResultString = "5050";
     assertEquals(schemeResultString, scheme.eval(schemeInputString).toString());
@@ -660,14 +660,14 @@ public class YailEvalTest extends TestCase {
         "(begin (def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " 1 100 -1) "  +
-        " (get-var x) " +
+        " (get-var \"Form\" x) " +
         ")";
     String schemeResultString = "0";
     assertEquals(schemeResultString, scheme.eval(schemeInputString).toString());
@@ -702,10 +702,10 @@ public class YailEvalTest extends TestCase {
         "(begin (def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " \"foo\" 100 -1) "  +
@@ -724,10 +724,10 @@ public class YailEvalTest extends TestCase {
         "(begin (def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " 1 \"foo\" -1) "  +
@@ -746,10 +746,10 @@ public class YailEvalTest extends TestCase {
         "(begin (def x 0)" +
         "(forrange i " +
         " (begin "      +
-        "   (set-var! x "      +
-        "    (call-yail-primitive "      +
+        "   (set-var! \"Form\" x "      +
+        "    (call-yail-primitive \"Form\" "      +
         "     + "      +
-        "     (*list-for-runtime* (get-var x) "      +
+        "     (*list-for-runtime* (get-var \"Form\" x) "      +
         "          (lexical-value i) ) "      +
         "     '( number number)  \"+\") )  ) "      +
         " 1 100 \"foo\" ) "  +

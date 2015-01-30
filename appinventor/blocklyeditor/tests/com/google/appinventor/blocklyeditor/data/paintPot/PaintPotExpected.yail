@@ -7,77 +7,77 @@ $Source $Yail
 
 ;;; Screen1
 
-(do-after-form-creation (set-and-coerce-property! 'Screen1 'Title "Screen1" 'text)
+(do-after-form-creation (set-and-coerce-property! "Form" 'Screen1 'Title "Screen1" 'text)
 )
 
 ;;; ThreeButtons
 
 (add-component Screen1 HorizontalArrangement ThreeButtons 
-(set-and-coerce-property! 'ThreeButtons 'Width -2 'number)
+(set-and-coerce-property! "Form" 'ThreeButtons 'Width -2 'number)
 
 )
 
 ;;; Red
 
 (add-component ThreeButtons Button Red 
-(set-and-coerce-property! 'Red 'BackgroundColor #xFFFF0000 'number)
+(set-and-coerce-property! "Form" 'Red 'BackgroundColor #xFFFF0000 'number)
 
-(set-and-coerce-property! 'Red 'Text "Red" 'text)
+(set-and-coerce-property! "Form" 'Red 'Text "Red" 'text)
 
-(set-and-coerce-property! 'Red 'Width -2 'number)
+(set-and-coerce-property! "Form" 'Red 'Width -2 'number)
 
 )
 
 (define-event Red Click()(set-this-form)
-    (set-and-coerce-property! 'DrawingCanvas 'PaintColor -65536 'number))
+    (set-and-coerce-property! "Form" 'DrawingCanvas 'PaintColor -65536 'number))
 ;;; Blue
 
 (add-component ThreeButtons Button Blue 
-(set-and-coerce-property! 'Blue 'BackgroundColor #xFF0000FF 'number)
+(set-and-coerce-property! "Form" 'Blue 'BackgroundColor #xFF0000FF 'number)
 
-(set-and-coerce-property! 'Blue 'Text "Blue" 'text)
+(set-and-coerce-property! "Form" 'Blue 'Text "Blue" 'text)
 
-(set-and-coerce-property! 'Blue 'Width -2 'number)
+(set-and-coerce-property! "Form" 'Blue 'Width -2 'number)
 
 )
 
 (define-event Blue Click()(set-this-form)
-    (set-and-coerce-property! 'DrawingCanvas 'PaintColor -16776961 'number))
+    (set-and-coerce-property! "Form" 'DrawingCanvas 'PaintColor -16776961 'number))
 ;;; Green
 
 (add-component ThreeButtons Button Green 
-(set-and-coerce-property! 'Green 'BackgroundColor #xFF00FF00 'number)
+(set-and-coerce-property! "Form" 'Green 'BackgroundColor #xFF00FF00 'number)
 
-(set-and-coerce-property! 'Green 'Text "Green" 'text)
+(set-and-coerce-property! "Form" 'Green 'Text "Green" 'text)
 
-(set-and-coerce-property! 'Green 'Width -2 'number)
+(set-and-coerce-property! "Form" 'Green 'Width -2 'number)
 
 )
 
 (define-event Green Click()(set-this-form)
-    (set-and-coerce-property! 'DrawingCanvas 'PaintColor -16711936 'number))
+    (set-and-coerce-property! "Form" 'DrawingCanvas 'PaintColor -16711936 'number))
 ;;; DrawingCanvas
 
 (add-component Screen1 Canvas DrawingCanvas 
-(set-and-coerce-property! 'DrawingCanvas 'Width -2 'number)
+(set-and-coerce-property! "Form" 'DrawingCanvas 'Width -2 'number)
 
-(set-and-coerce-property! 'DrawingCanvas 'Height 300 'number)
+(set-and-coerce-property! "Form" 'DrawingCanvas 'Height 300 'number)
 
 )
 
 (define-event DrawingCanvas Touched($x $y $touchedAnySprite)(set-this-form)
-    (call-component-method 'DrawingCanvas 'DrawCircle (*list-for-runtime* (lexical-value $x)  (lexical-value $y)  5  #t) '(number number number boolean)))
+    (call-component-method "Form" 'DrawingCanvas 'DrawCircle (*list-for-runtime* (lexical-value $x)  (lexical-value $y)  5  #t) '(number number number boolean)))
 (define-event DrawingCanvas Dragged($startX $startY $prevX $prevY $currentX $currentY $draggedAnySprite)(set-this-form)
-    (call-component-method 'DrawingCanvas 'DrawLine (*list-for-runtime* (lexical-value $prevX)  (lexical-value $prevY)  (lexical-value $currentX)  (lexical-value $currentY)) '(number number number number)))
+    (call-component-method "Form" 'DrawingCanvas 'DrawLine (*list-for-runtime* (lexical-value $prevX)  (lexical-value $prevY)  (lexical-value $currentX)  (lexical-value $currentY)) '(number number number number)))
 ;;; Wipe
 
 (add-component Screen1 Button Wipe 
-(set-and-coerce-property! 'Wipe 'Text "Wipe" 'text)
+(set-and-coerce-property! "Form" 'Wipe 'Text "Wipe" 'text)
 
-(set-and-coerce-property! 'Wipe 'Width -2 'number)
+(set-and-coerce-property! "Form" 'Wipe 'Width -2 'number)
 
 )
 
 (define-event Wipe Click()(set-this-form)
-    (call-component-method 'DrawingCanvas 'Clear (*list-for-runtime*) '()))
+    (call-component-method "Form" 'DrawingCanvas 'Clear (*list-for-runtime*) '()))
 (init-runtime)

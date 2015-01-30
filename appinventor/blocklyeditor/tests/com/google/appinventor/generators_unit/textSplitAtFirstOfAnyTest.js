@@ -14,7 +14,7 @@
 
 var expected =
    "     \
-   (call-yail-primitive string-split-at-first-of-any   \
+   (call-yail-primitive \"Form\" string-split-at-first-of-any   \
           (*list-for-runtime* \"\" 1)             \
           '(text list)                            \
            \"split at first of any\")                             \
