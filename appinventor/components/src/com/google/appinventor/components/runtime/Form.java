@@ -542,15 +542,15 @@ public class Form extends Activity
   }
 
   @SimpleFunction(description = "Starts the specified task with a start value")
-  public void StartTaskWithValue(String taskName, String startValue) {
+  public void StartTaskWithValue(String taskName, Object startValue) {
     if (activeForm != null) {
-      activeForm.startNewService(taskName, null);
+      activeForm.startNewService(taskName, startValue);
     } else {
       throw new IllegalStateException("activeForm is null");
     }
   }
 
-  public void startNewService(String taskName, String startValue) {
+  public void startNewService(String taskName, Object startValue) {
     Intent serviceIntent = new Intent();
     // Note that the following is dependent on form generated class names being the same as
     // their form names and all forms being in the same package.
@@ -558,8 +558,8 @@ public class Form extends Activity
     serviceIntent.setClassName(this, packageName + "." + taskName);
     String functionName = "open another service";
     String jValue = "";
-    if (startupValue != null) {
-      jValue = jsonEncodeForForm(startupValue, functionName);
+    if (startValue != null) {
+      jValue = jsonEncodeForForm(startValue, functionName);
     }
     serviceIntent.putExtra(SERVICE_ARG, jValue);
     try {
