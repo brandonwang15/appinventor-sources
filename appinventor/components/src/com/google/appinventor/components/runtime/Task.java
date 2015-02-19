@@ -128,12 +128,13 @@ public class Task extends Service
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     String startValue = intent.getStringExtra(Form.SERVICE_ARG);
-    TaskStarted(startValue);
+    Object decodedStartVal = Form.decodeJSONStringForForm(startValue, "get start value");
+    TaskStarted(decodedStartVal);
     return START_STICKY;
   }
 
   @SimpleEvent(description = "Task has been started")
-  public void TaskStarted(String startValue) {
+  public void TaskStarted(Object startValue) {
     EventDispatcher.dispatchEvent(this, "TaskStarted", startValue);
   }
 

@@ -316,7 +316,7 @@ public class Form extends Activity
 
   // functionName is a string to include in the error message that will be shown
   // if the JSON decoding fails
-  private  static Object decodeJSONStringForForm(String jsonString, String functionName) {
+  public  static Object decodeJSONStringForForm(String jsonString, String functionName) {
     Log.i(LOG_TAG, "decodeJSONStringForForm -- decoding JSON representation:" + jsonString);
     Object valueFromJSON = "";
     try {
