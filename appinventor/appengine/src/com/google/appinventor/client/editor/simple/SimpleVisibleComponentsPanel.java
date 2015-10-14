@@ -6,9 +6,8 @@
 
 package com.google.appinventor.client.editor.simple;
 
-import static com.google.appinventor.client.Ode.MESSAGES;
 import com.google.appinventor.client.editor.ProjectEditor;
-import com.google.appinventor.client.editor.simple.components.MockTopLevelContainer;
+import com.google.appinventor.client.editor.simple.components.MockForm;
 import com.google.appinventor.client.editor.simple.palette.SimplePaletteItem;
 import com.google.appinventor.client.widgets.dnd.DragSource;
 import com.google.appinventor.client.widgets.dnd.DropTarget;
@@ -20,6 +19,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import static com.google.appinventor.client.Ode.MESSAGES;
+
 /**
  * Panel in the Simple design editor holding visible Simple components.
  *
@@ -28,6 +29,7 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
   // UI elements
   private final VerticalPanel phoneScreen;
   private final CheckBox checkboxShowHiddenComponents;
+  private final CheckBox checkboxPhoneTablet; // A CheckBox for Phone/Tablet preview sizes
 
   // Corresponding panel for non-visible components (because we allow users to drop
   // non-visible components onto the form, but we show them in the non-visible
@@ -35,7 +37,7 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
   private final SimpleNonVisibleComponentsPanel nonVisibleComponentsPanel;
   private final ProjectEditor projectEditor;
 
-  private MockTopLevelContainer form;
+  private MockForm form;
 
   /**
    * Creates new component design panel for visible components.
@@ -78,7 +80,56 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
     });
     phoneScreen.add(checkboxShowHiddenComponents);
 
+    checkboxPhoneTablet = new CheckBox(MESSAGES.previewPhoneSize()) {
+      @Override
+      protected void onLoad() {
+        // onLoad is called immediately after a widget becomes attached to the browser's document.
+        boolean showPhoneTablet = Boolean.parseBoolean(
+            projectEditor.getProjectSettingsProperty(
+                SettingsConstants.PROJECT_YOUNG_ANDROID_SETTINGS,
+                SettingsConstants.YOUNG_ANDROID_SETTINGS_PHONE_TABLET));
+        checkboxPhoneTablet.setValue(showPhoneTablet);
+        changeFormPreviewSize(showPhoneTablet);
+      }
+    };
+    checkboxPhoneTablet.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+      @Override
+      public void onValueChange(ValueChangeEvent<Boolean> event) {
+          boolean isChecked = event.getValue(); // auto-unbox from Boolean to boolean
+          projectEditor.changeProjectSettingsProperty(
+              SettingsConstants.PROJECT_YOUNG_ANDROID_SETTINGS,
+              SettingsConstants.YOUNG_ANDROID_SETTINGS_PHONE_TABLET,
+              isChecked ? "True" : "False");
+          changeFormPreviewSize(isChecked);
+        }
+    });
+    phoneScreen.add(checkboxPhoneTablet);
+
     initWidget(phoneScreen);
+  }
+
+  private void changeFormPreviewSize(boolean isChecked) {
+    if (form != null){
+      if (isChecked){
+        form.changePreviewSize(true);
+        checkboxPhoneTablet.setText(MESSAGES.previewPhoneSize());
+      }
+      else {
+        form.changePreviewSize(false);
+        checkboxPhoneTablet.setText(MESSAGES.previewTabletSize());
+      }
+    }
+  }
+
+  public void enableTabletPreviewCheckBox(boolean enable){
+    if (form != null){
+      if (!enable){
+        form.changePreviewSize(false);
+        checkboxPhoneTablet.setText(MESSAGES.previewTabletSize());
+        checkboxPhoneTablet.setChecked(false);
+      }
+    }
+    checkboxPhoneTablet.setEnabled(enable);
   }
 
   /**
@@ -86,7 +137,7 @@ public final class SimpleVisibleComponentsPanel extends Composite implements Dro
    *
    * @param form  backing mocked form component
    */
-  public void setForm(MockTopLevelContainer form) {
+  public void setForm(MockForm form) {
     this.form = form;
     phoneScreen.add(form);
   }

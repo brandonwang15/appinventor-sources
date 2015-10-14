@@ -8,71 +8,30 @@
 
 package com.google.appinventor.components.runtime;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.json.JSONException;
-
 import android.app.Service;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.text.Html;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ScrollView;
-
-import com.google.appinventor.components.annotations.DesignerComponent;
-import com.google.appinventor.components.annotations.DesignerProperty;
-import com.google.appinventor.components.annotations.PropertyCategory;
-import com.google.appinventor.components.annotations.SimpleEvent;
-import com.google.appinventor.components.annotations.SimpleFunction;
-import com.google.appinventor.components.annotations.SimpleObject;
-import com.google.appinventor.components.annotations.SimpleProperty;
-import com.google.appinventor.components.annotations.UsesPermissions;
+import com.google.appinventor.components.annotations.*;
 import com.google.appinventor.components.common.ComponentCategory;
-import com.google.appinventor.components.common.ComponentConstants;
 import com.google.appinventor.components.common.PropertyTypeConstants;
 import com.google.appinventor.components.common.YaVersion;
-import com.google.appinventor.components.runtime.collect.Lists;
-import com.google.appinventor.components.runtime.collect.Maps;
 import com.google.appinventor.components.runtime.collect.Sets;
-import com.google.appinventor.components.runtime.util.AlignmentUtil;
-import com.google.appinventor.components.runtime.util.AnimationUtil;
 import com.google.appinventor.components.runtime.util.ErrorMessages;
-import com.google.appinventor.components.runtime.util.FullScreenVideoUtil;
-import com.google.appinventor.components.runtime.util.JsonUtil;
-import com.google.appinventor.components.runtime.util.MediaUtil;
 import com.google.appinventor.components.runtime.util.OnInitializeListener;
-import com.google.appinventor.components.runtime.util.SdkLevel;
-import com.google.appinventor.components.runtime.util.ViewUtil;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * Component underlying services, not directly accessible to Simple programmers.
  *
  * <p>This is the root container of any Android Service.
  *
- *
  */
-@DesignerComponent(version = YaVersion.FORM_COMPONENT_VERSION,
+@DesignerComponent(version = YaVersion.TASK_COMPONENT_VERSION,
     category = ComponentCategory.LAYOUT,
     description = "Top-level component containing all other components in the program",
     showOnPalette = false)
@@ -273,6 +232,16 @@ public class Task extends Service
 
   @Override
   public void setChildHeight(AndroidViewComponent component, int height) {
+  }
+
+  @Override
+  public int Width() {
+    return 0;
+  }
+
+  @Override
+  public int Height() {
+    return 0;
   }
 
   public static Task getActiveTask() {

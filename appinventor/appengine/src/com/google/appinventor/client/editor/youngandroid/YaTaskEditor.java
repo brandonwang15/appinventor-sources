@@ -5,8 +5,6 @@
 
 package com.google.appinventor.client.editor.youngandroid;
 
-import static com.google.appinventor.client.Ode.MESSAGES;
-
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.OdeAsyncCallback;
 import com.google.appinventor.client.boxes.AssetListBox;
@@ -49,6 +47,8 @@ import com.google.gwt.user.client.ui.DockPanel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.appinventor.client.Ode.MESSAGES;
 
 /**
  * Editor for Young Android Task (.tsk) files.
@@ -264,6 +264,11 @@ public final class YaTaskEditor extends SimpleEditor implements FormChangeListen
   }
 
   @Override
+  public SimpleVisibleComponentsPanel getVisibleComponentsPanel() {
+    return null;
+  }
+
+  @Override
   public boolean isScreen1() {
     return taskNode.isScreen1();
   }
@@ -449,7 +454,7 @@ public final class YaTaskEditor extends SimpleEditor implements FormChangeListen
       }
     }
 
-    // Add component type to the blocks editor
+    // Add component type to the blocks editorA
     YaProjectEditor yaProjectEditor = (YaProjectEditor) projectEditor;
     YaBlocksEditor blockEditor = yaProjectEditor.getBlocksFileEditor(taskNode.getFormName());
     blockEditor.addComponent(mockComponent.getType(), mockComponent.getName(),

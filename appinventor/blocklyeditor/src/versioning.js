@@ -818,6 +818,62 @@ Blockly.Versioning.addDefaultMethodArgument = function(componentType, methodName
 }
 
 /**
+ * Rename all method call blocks for a given component type and method name.
+ * @param componentType: name of component type for method
+ * @param oldMethodName: name of method
+ * @param newMethodName: new name of method
+ * @returns a function that maps a blocksRep (An XML DOM or workspace)
+ *   to a modified DOM in which every specified method call has been renamed.
+ *
+ * @author lizlooney@google.com (Liz Looney)
+ */
+Blockly.Versioning.changeMethodName = function(componentType, oldMethodName, newMethodName) {
+  return function (blocksRep) {
+    var dom = Blockly.Versioning.ensureDom(blocksRep);
+    // For each matching method call block, change the method_name attribute.
+    var methodCallBlocks =  Blockly.Versioning.findAllMethodCalls(dom, componentType, oldMethodName);
+    for (var b = 0, methodCallBlock; methodCallBlock = methodCallBlocks[b]; b++) {
+      var mutation = Blockly.Versioning.firstChildWithTagName(methodCallBlock, "mutation");
+      mutation.setAttribute("method_name", newMethodName);
+    }
+    return dom; // Return the modified dom, as required by the upgrading structure.
+  }
+}
+
+/**
+ * Rename all property get/set blocks for a given component type and property name.
+ * @param componentType: name of component type for property
+ * @param oldPropertyName: name of property
+ * @param newPropertyName: new name of property
+ * @returns a function that maps a blocksRep (An XML DOM or workspace)
+ *   to a modified DOM in which every specified property get/set has been renamed.
+ *
+ * @author lizlooney@google.com (Liz Looney)
+ */
+Blockly.Versioning.changePropertyName = function(componentType, oldPropertyName, newPropertyName) {
+  return function (blocksRep) {
+    var dom = Blockly.Versioning.ensureDom(blocksRep);
+    // For each matching property block, change the property_name attribute.
+    var propertyBlocks =  Blockly.Versioning.findAllPropertyBlocks(dom, componentType, oldPropertyName);
+    for (var b = 0, propertyBlock; propertyBlock = propertyBlocks[b]; b++) {
+      var mutation = Blockly.Versioning.firstChildWithTagName(propertyBlock, "mutation");
+      mutation.setAttribute("property_name", newPropertyName);
+      var children = goog.dom.getChildren(propertyBlock);
+      for (var c = 0, child; child = children[c]; c++) {
+        if (child.tagName.toUpperCase() == "FIELD") {
+          if (child.getAttribute("name") == "PROP") {
+            if (child.textContent == oldPropertyName) {
+              child.textContent = newPropertyName;
+            }
+          }
+        }
+      }
+    }
+    return dom; // Return the modified dom, as required by the upgrading structure.
+  }
+}
+
+/**
  * @param dom: DOM for XML workspace
  * @param componentType: name of component type for method
  * @param methodName: name of method
@@ -835,7 +891,7 @@ Blockly.Versioning.findAllMethodCalls = function (dom, componentType, methodName
       if (!mutation) {
         throw "Did not find expected mutation child in "
               + "Blockly.Versioning.findAllMethodCalls with componentType = " + componentType
-              + "and methodNames = " + methodName;
+              + "and methodName = " + methodName;
       } else {
         if ((mutation.getAttribute("component_type") == componentType)
             && (mutation.getAttribute("method_name") == methodName)) {
@@ -848,9 +904,39 @@ Blockly.Versioning.findAllMethodCalls = function (dom, componentType, methodName
 }
 
 /**
+ * @param dom: DOM for XML workspace
+ * @param componentType: name of component type for property
+ * @param propertyName: name of property
+ * @returns a list of HTML elements for the specfied property blocks.
+ *
+ * @author lizlooney@google.com (Liz Looney)
+ *
+ */
+Blockly.Versioning.findAllPropertyBlocks = function (dom, componentType, propertyName) {
+  var allBlocks = dom.getElementsByTagName('block');
+  var propertyBlocks = [];
+  for (var b = 0, block; block = allBlocks[b]; b++)  {
+    if (block.getAttribute('type') == "component_set_get") {
+      var mutation = Blockly.Versioning.firstChildWithTagName(block, "mutation");
+      if (!mutation) {
+        throw "Did not find expected mutation child in "
+              + "Blockly.Versioning.findAllPropertyBlocks with componentType = " + componentType
+              + "and propertyName = " + propertyName;
+      } else {
+        if ((mutation.getAttribute("component_type") == componentType)
+            && (mutation.getAttribute("property_name") == propertyName)) {
+          propertyBlocks.push(block);
+        }
+      }
+    }
+  }
+  return propertyBlocks;
+}
+
+/**
  * @param elem: an HTML element
  * @param tag: string thats a tag name
- * @returns the first child of elem with the given tag name (case insenstive)
+ * @returns the first child of elem with the given tag name (case insensitive)
  *  or null if there is no such element.
  *
  * @author fturbak@wellesley.edu (Lyn Turbak)
@@ -860,7 +946,7 @@ Blockly.Versioning.firstChildWithTagName = function (elem, tag) {
   var upcaseTag = tag.toUpperCase();
   var children = goog.dom.getChildren(elem);
   for (var c = 0, child; child = children[c]; c++) {
-    if (child.tagName == upcaseTag) {
+    if (child.tagName.toUpperCase() == upcaseTag) {
       return child;
     }
   }
@@ -972,7 +1058,14 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // AI1: The ActivityStarter.StartActivity method was modified to pull the parent Form's
     // screen animation type. No blocks need to be modified to upgrade to version 4.
-    4: "noUpgrade"
+    4: "noUpgrade",
+
+    // AI2: The ActivityStarter.ActivityCanceled event was added.
+    // No blocks need to be modified to upgrade to version 5.
+    5: "noUpgrade",
+
+    // Extras property was added
+    6: "noUpgrade"
 
   }, // End ActivityStarter upgraders
 
@@ -1178,7 +1271,22 @@ Blockly.Versioning.AllUpgradeMaps =
   "Clock": {
 
     //This is initial version. Placeholder for future upgrades
-    1: "noUpgrade"
+    1: "noUpgrade",
+
+    // AI2: The patterm pattermeter was added to FormatDate and FormatDateTime.
+    // * FormatDate(instant) to FormatDate(instant, pattern)
+    // * FormatDateTime(instant) to FormatDateTime(instant, pattern)
+    2:
+      [  // Set the default argument for parameter to be an empty string.
+         Blockly.Versioning.addDefaultMethodArgument("Clock", "FormatDateTime", 1,
+         '<block type="text">' +
+         '  <field name="TEXT">MMM d, yyyy HH:mm:ss a</field>' +
+         '</block>'),
+         Blockly.Versioning.addDefaultMethodArgument("Clock", "FormatDate", 1,
+         '<block type="text">' +
+         '  <field name="TEXT">MMM d, yyyy</field>' +
+         '</block>')
+      ]
 
   }, // End Clock upgraders
 
@@ -1200,7 +1308,10 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // AI2:  Added PhoneNumber, PhoneNumberList, and EmailAddressList to ContactPicker.
     // - For Eclair and up, we now use ContactsContract instead of the deprecated Contacts.
-    5: "noUpgrade"
+    5: "noUpgrade",
+
+    // AI2:  Added ContactUri
+    6: "noUpgrade"
 
   }, // End ContactPicker upgraders
 
@@ -1212,7 +1323,10 @@ Blockly.Versioning.AllUpgradeMaps =
     // The SetDateToDisplay and LaunchPicker methods were added to
     // give the user more control of what time is displayed in the
     // datepicker dialog.
-    2: "noUpgrade"
+    2: "noUpgrade",
+
+    // AI2: SetDateToDisplayFromInstant method and Instant property are added.
+    3: "noUpgrade"
 
   }, // End DatePicker upgraders
 
@@ -1223,14 +1337,18 @@ Blockly.Versioning.AllUpgradeMaps =
     /* From BlockSaveFile.java:
       handlePropertyRename(componentName, "Alignment", "TextAlignment");
     */
-    2: "ai1CantDoUpgrade" // Just indicates we couldn't do upgrade even if we wanted to
+    2: "ai1CantDoUpgrade", // Just indicates we couldn't do upgrade even if we wanted to
+
+    // RequestFocus was added
+    3: "noUpgrade"
 
   }, // End EmailPicker upgraders
 
   "File": {
 
-    //This is initial version. Placeholder for future upgrades
-    1: "noUpgrade"
+    // AI2: The AfterFileSaved event was added.
+    // No blocks need to be modified to upgrade to version 2.
+    2: "noUpgrade"
 
   }, // End File upgraders
 
@@ -1254,13 +1372,16 @@ Blockly.Versioning.AllUpgradeMaps =
     //This is initial version. Placeholder for future upgrades
     1: "noUpgrade"
 
-  }, // End Image upgraders
+  }, // End GameClient upgraders
 
   "HorizontalArrangement": {
 
     // AI1: The AlignHorizontal and AlignVertical properties were added.
     // No blocks need to be modified to upgrade to version 2.
-    2: "noUpgrade"
+    2: "noUpgrade",
+
+    // - Added background color & image
+    3: "noUpgrade"
 
   }, // End HorizontalArrangement upgraders
 
@@ -1412,7 +1533,7 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // In BLOCKS_LANGUAGE_VERSION 12, we changed the multiply
     // symbol from * star to times, and the subtract symbol
-    // from hypen to minus
+    // from hyphen to minus
     /* From BlockSaveFile.java:
         changeStarAndHyphenToTimesAndMinusForMultiplyAndSubtractBlocks();
         // Blocks have now been upgraded to language version 12.
@@ -1448,7 +1569,15 @@ Blockly.Versioning.AllUpgradeMaps =
     17: "ai1CantDoUpgrade", // Just indicates we couldn't do upgrade even if we wanted to
 
     // AI2: Jeff Schiller's new Obfuscate Text block added
-    18: "noUpgrade"
+    18: "noUpgrade",
+
+    // AI2: In BLOCKS_LANGUAGE_VERSION 19
+    // is-number?, was extended with a dropdown to include base10, bin, and hex
+    // The existing block from an old project apparently does not need to be modified to
+    // see these new options.  (Hal is not sure why not, but it seems to work.)
+    // The math convert block was added
+    // No language blocks need to be modified to upgrade to version 16.
+    19: "noUpgrade"
 
   }, // End Language upgraders
 
@@ -1495,13 +1624,20 @@ Blockly.Versioning.AllUpgradeMaps =
     // AI2:
     // - Added BackgroundColor Property
     // - Added TextColor Property
-    3: "noUpgrade"
+    3: "noUpgrade",
+    // AI2:
+    // - Added TextSize Property
+    4: "noUpgrade",
+    // AI2:
+    // - Added SelectionColor Property
+    5: "noUpgrade"
 
   }, // End ListView upgraders
 
   "LocationSensor": {
 
-    // AI2: The TimeInterval and DistanceInterval properties were added.
+    // AI1: The TimeInterval and DistanceInterval properties were added.
+    // No changes required.
     2: "noUpgrade"
 
   }, // End LocationSensor upgraders
@@ -1538,7 +1674,11 @@ Blockly.Versioning.AllUpgradeMaps =
     2: "ai1CantDoUpgrade", // Just indicates we couldn't do upgrade even if we wanted to
 
     // AI2: Added NotifierColor, TextColor and NotifierLength options
-    3: "noUpgrade"
+    3: "noUpgrade",
+
+    // Added a ProgressDialog, a dialog that cannot be dismissed by the user.
+    // The ShowProgressDialog will show the dialog, and DismissProgressDialog is the only way to dismiss it
+    4: "noUpgrade"
 
   }, // End Notifier upgraders
 
@@ -1614,7 +1754,10 @@ Blockly.Versioning.AllUpgradeMaps =
     /* From BlockSaveFile.java:
       handlePropertyRename(componentName, "Alignment", "TextAlignment");
     */
-    2: "ai1CantDoUpgrade" // Just indicates we couldn't do upgrade even if we wanted to
+    2: "ai1CantDoUpgrade", // Just indicates we couldn't do upgrade even if we wanted to
+
+    // RequestFocus was added
+    3: "noUpgrade"
 
   }, // End PasswordTextBox upgraders
 
@@ -1761,7 +1904,23 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // For FORM_COMPONENT_VERSION 14:
     // - The Screen1.AppName was added and no block need to be changed.
-    14: "noUpgrade"
+    14: "noUpgrade",
+
+    // For FORM_COMPONENT_VERSION 15:
+    // - The Screen1.ShowStatusBar was added and no block needs to be changed.
+    15: "noUpgrade",
+
+    // For FORM_COMPONENT_VERSION 16:
+    // - The Screen1.TitleVisible was added and no block needs to be changed.
+    16: "noUpgrade",
+
+    // For FORM_COMPONENT_VERSION 17:
+    // - Screen.CompatibilityMode property was added no block needs to be changed.
+    17: "noUpgrade",
+
+    // Screen.CompatibililtyMode replaced with Screen.Sizing no blocks need to be
+    // changed.
+    18: "noUpgrade"
 
   }, // End Screen
 
@@ -1775,7 +1934,10 @@ Blockly.Versioning.AllUpgradeMaps =
   "Slider": {
 
     //This is initial version. Placeholder for future upgrades
-    1: "noUpgrade"
+    1: "noUpgrade",
+
+    // Added the property to allow for the removal of the Thumb Slider
+    2: "noUpgrade"
 
   }, // End Slider upgraders
 
@@ -1800,7 +1962,10 @@ Blockly.Versioning.AllUpgradeMaps =
   "SoundRecorder": {
 
     //This is initial version. Placeholder for future upgrades
-    1: "noUpgrade"
+    1: "noUpgrade",
+    // AI2: The Sound.SavedRecording property was added.
+    // No blocks need to be modified to upgrade to version 2.
+    2: "noUpgrade"
 
   }, // End SoundRecorder upgraders
 
@@ -1843,7 +2008,10 @@ Blockly.Versioning.AllUpgradeMaps =
     // No blocks need to be modified to upgrade to version 4, although old
     // block need to have MultiLine explicitly set to true, since the new default
     // is false (see YoungAndroidFormUpgrade).
-    4: "noUpgrade"
+    4: "noUpgrade",
+
+    // AI2: Added RequestFocus method
+    5: "noUpgrade"
 
   }, // End TextBox upgraders
 
@@ -1865,7 +2033,19 @@ Blockly.Versioning.AllUpgradeMaps =
   "TextToSpeech": {
 
     // AI2:  added speech pitch and rate
-    2: "noUpgrade"
+    2: "noUpgrade",
+
+    // the AvailableLanguages property was added
+    // the AvailableCountries property was added
+    3: "noUpgrade",
+
+    // the Country designer property was changed to use a ChoicePropertyEditor
+    // the Language designer property was changed to use a ChoicePropertyEditor
+    4: "noUpgrade",
+
+    // default value was added to the Country designer property
+    // default value was added to the Language designer property
+    5: "noUpgrade"
 
   }, // End TextToSpeech upgraders
 
@@ -1876,9 +2056,12 @@ Blockly.Versioning.AllUpgradeMaps =
     // The SetTimeToDisplay and LaunchPicker methods were added to
     // give the user more control of what time is displayed in the
     // timepicker dialog.
-    2: "noUpgrade"
+    2: "noUpgrade",
 
-  }, // End TimerPicker upgraders
+    // AI2: SetTimeToDisplayFromInstant method and Instant property are added.
+    3: "noUpgrade"
+
+  }, // End TimePicker upgraders
 
   "TinyDB": {
 
@@ -1949,7 +2132,10 @@ Blockly.Versioning.AllUpgradeMaps =
 
     // AI1: The AlignHorizontal and AlignVertical properties were added. No blocks need to be modified
     // to upgrade to version 2.
-    2: "noUpgrade"
+    2: "noUpgrade",
+
+    // - Added background color & image
+    3: "noUpgrade"
 
   }, // End VerticalArrangement upgraders
 
@@ -2033,7 +2219,10 @@ Blockly.Versioning.AllUpgradeMaps =
     4: "noUpgrade",
 
     // AI2: IgnoreSslError property added
-    5: "noUpgrade"
+    5: "noUpgrade",
+
+    // AI2: Added ClearCaches method
+    6: "noUpgrade"
 
   }, // End WebViewer upgraders
 
@@ -2045,4 +2234,3 @@ Blockly.Versioning.AllUpgradeMaps =
   } // End YandexTranslate upgraders
 
 }
-

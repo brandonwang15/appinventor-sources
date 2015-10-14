@@ -23,6 +23,7 @@ import com.google.appinventor.components.runtime.util.FileUtil;
 import com.google.appinventor.components.runtime.Form;
 import com.google.appinventor.components.runtime.ReplForm;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
@@ -53,25 +54,23 @@ import java.io.StringWriter;
     iconName = "images/file.png")
 @SimpleObject
 @UsesPermissions(permissionNames = "android.permission.WRITE_EXTERNAL_STORAGE, android.permission.READ_EXTERNAL_STORAGE")
-public class File extends AndroidNonVisibleTaskComponent implements Component {
+public class File extends AndroidNonvisibleComponent implements Component {
   public static final String NO_ASSETS = "No_Assets";
-  private final Context context;
+  private final Activity activity;
   private boolean isRepl = false;
   private final int BUFFER_LENGTH = 4096;
   private static final String LOG_TAG = "FileComponent";
-  private Handler androidUIHandler;
 
   /**
    * Creates a new File component.
    * @param container the Form that this component is contained in.
    */
   public File(ComponentContainer container) {
-    super(container);
+    super(container.$form());
     if (form instanceof ReplForm) { // Note: form is defined in our superclass
       isRepl = true;
     }
-    context = container.$context();
-    androidUIHandler = new Handler();
+    activity = (Activity) container.$context();
   }
 
   /**
@@ -153,11 +152,11 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
         });
     } catch (FileNotFoundException e) {
       Log.e(LOG_TAG, "FileNotFoundException", e);
-      dispatchErrorOccurredEvent(File.this, "ReadFrom",
+      form.dispatchErrorOccurredEvent(File.this, "ReadFrom",
           ErrorMessages.ERROR_CANNOT_FIND_FILE, fileName);
     } catch (IOException e) {
       Log.e(LOG_TAG, "IOException", e);
-      dispatchErrorOccurredEvent(File.this, "ReadFrom",
+      form.dispatchErrorOccurredEvent(File.this, "ReadFrom",
           ErrorMessages.ERROR_CANNOT_FIND_FILE, fileName);
     }
   }
@@ -175,7 +174,7 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
       "because assets files cannot be deleted.")
   public void Delete(String fileName) {
     if (fileName.startsWith("//")) {
-      dispatchErrorOccurredEvent(File.this, "DeleteFile",
+      form.dispatchErrorOccurredEvent(File.this, "DeleteFile",
           ErrorMessages.ERROR_CANNOT_DELETE_ASSET, fileName);
       return;
     }
@@ -194,10 +193,10 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
   private void Write(final String filename, final String text, final boolean append) {
     if (filename.startsWith("//")) {
       if (append) {
-        dispatchErrorOccurredEvent(File.this, "AppendTo",
+        form.dispatchErrorOccurredEvent(File.this, "AppendTo",
             ErrorMessages.ERROR_CANNOT_WRITE_ASSET, filename);
       } else {
-        dispatchErrorOccurredEvent(File.this, "SaveFile",
+        form.dispatchErrorOccurredEvent(File.this, "SaveFile",
             ErrorMessages.ERROR_CANNOT_WRITE_ASSET, filename);
       }
       return;
@@ -213,10 +212,10 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
             file.createNewFile();
           } catch (IOException e) {
             if (append) {
-              dispatchErrorOccurredEvent(File.this, "AppendTo",
+              form.dispatchErrorOccurredEvent(File.this, "AppendTo",
                   ErrorMessages.ERROR_CANNOT_CREATE_FILE, filepath);
             } else {
-              dispatchErrorOccurredEvent(File.this, "SaveFile",
+              form.dispatchErrorOccurredEvent(File.this, "SaveFile",
                   ErrorMessages.ERROR_CANNOT_CREATE_FILE, filepath);
             }
             return;
@@ -229,12 +228,19 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
           out.flush();
           out.close();
           fileWriter.close();
+
+          activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              AfterFileSaved(filename);
+            }
+          });
         } catch (IOException e) {
           if (append) {
-            dispatchErrorOccurredEvent(File.this, "AppendTo",
+            form.dispatchErrorOccurredEvent(File.this, "AppendTo",
                 ErrorMessages.ERROR_CANNOT_WRITE_TO_FILE, filepath);
           } else {
-            dispatchErrorOccurredEvent(File.this, "SaveFile",
+            form.dispatchErrorOccurredEvent(File.this, "SaveFile",
                 ErrorMessages.ERROR_CANNOT_WRITE_TO_FILE, filepath);
           }
         }
@@ -284,7 +290,7 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
 
       final String text = normalizeNewLines(output.toString());
 
-      androidUIHandler.post(new Runnable() {
+      activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
           GotText(text);
@@ -292,11 +298,11 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
       });
     } catch (FileNotFoundException e) {
       Log.e(LOG_TAG, "FileNotFoundException", e);
-      dispatchErrorOccurredEvent(File.this, "ReadFrom",
+      form.dispatchErrorOccurredEvent(File.this, "ReadFrom",
           ErrorMessages.ERROR_CANNOT_FIND_FILE, fileName);
     } catch (IOException e) {
       Log.e(LOG_TAG, "IOException", e);
-      dispatchErrorOccurredEvent(File.this, "ReadFrom",
+      form.dispatchErrorOccurredEvent(File.this, "ReadFrom",
           ErrorMessages.ERROR_CANNOT_READ_FILE, fileName);
     } finally {
       if (input != null) {
@@ -321,6 +327,17 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
   }
 
   /**
+   * Event indicating that a request has finished.
+   *
+   * @param text write to the file
+   */
+  @SimpleEvent (description = "Event indicating that the contents of the file have been written.")
+  public void AfterFileSaved(String fileName) {
+    // invoke the application's "AfterFileSaved" event handler.
+    EventDispatcher.dispatchEvent(this, "AfterFileSaved", fileName);
+  }
+
+  /**
    * Returns absolute file path.
    *
    * @param filename the file used to construct the file path
@@ -329,7 +346,7 @@ public class File extends AndroidNonVisibleTaskComponent implements Component {
     if (filename.startsWith("/")) {
       return Environment.getExternalStorageDirectory().getPath() + filename;
     } else {
-      java.io.File dirPath = context.getFilesDir();
+      java.io.File dirPath = activity.getFilesDir();
       if (isRepl) {
         String path = Environment.getExternalStorageDirectory().getPath() + "/AppInventor/data/";
         dirPath = new java.io.File(path);

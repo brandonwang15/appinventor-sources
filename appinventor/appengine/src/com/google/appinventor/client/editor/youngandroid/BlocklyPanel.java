@@ -6,14 +6,12 @@
 
 package com.google.appinventor.client.editor.youngandroid;
 
+import com.google.appinventor.client.ComponentsTranslation;
 import com.google.appinventor.client.DesignToolbar;
 import com.google.appinventor.client.ErrorReporter;
 import com.google.appinventor.client.Ode;
 import com.google.appinventor.client.TopToolbar;
-import com.google.appinventor.client.TranslationComponentEvents;
-import com.google.appinventor.client.TranslationComponentMethods;
 import com.google.appinventor.client.TranslationComponentParams;
-import com.google.appinventor.client.TranslationComponentProperty;
 import com.google.appinventor.client.TranslationDesignerPallete;
 import com.google.appinventor.client.editor.simple.SimpleComponentDatabase;
 import com.google.appinventor.client.output.OdeLog;
@@ -32,6 +30,8 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -121,6 +121,9 @@ public class BlocklyPanel extends HTMLPanel {
 
   // Status of blocks loading, indexed by form name.
   private static final Map<String, LoadStatus> loadStatusMap = Maps.newHashMap();
+
+  // Blockly backpack
+  private static String backpack = "[]";
 
   // My form name
   private String formName;
@@ -229,6 +232,13 @@ public class BlocklyPanel extends HTMLPanel {
   // no componentOps entry exists for formName).
   public static boolean blocksInited(String formName) {
     return !componentOps.containsKey(formName);
+  }
+
+  public static String getBackpack() {
+    return backpack;
+  }
+  public static void setBackpack(String bp_contents) {
+    backpack = bp_contents;
   }
 
   /**
@@ -774,7 +784,7 @@ public class BlocklyPanel extends HTMLPanel {
   }
 
   public static String getLocalizedPropertyName(String key) {
-    return TranslationComponentProperty.getName(key);
+    return ComponentsTranslation.getPropertyName(key);
   }
 
   public static String getLocalizedParameterName(String key) {
@@ -782,11 +792,11 @@ public class BlocklyPanel extends HTMLPanel {
   }
 
   public static String getLocalizedMethodName(String key) {
-    return TranslationComponentMethods.getName(key);
+    return ComponentsTranslation.getMethodName(key);
   }
 
   public static String getLocalizedEventName(String key) {
-    return TranslationComponentEvents.getName(key);
+    return ComponentsTranslation.getEventName(key);
   }
 
   public static String getLocalizedComponentType(String key) {
@@ -851,6 +861,10 @@ public class BlocklyPanel extends HTMLPanel {
         $entry(@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::getLocalizedEventName(Ljava/lang/String;));
     $wnd.BlocklyPanel_getLocalizedComponentType =
         $entry(@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::getLocalizedComponentType(Ljava/lang/String;));
+    $wnd.BlocklyPanel_getBackpack =
+      $entry(@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::getBackpack());
+    $wnd.BlocklyPanel_setBackpack =
+      $entry(@com.google.appinventor.client.editor.youngandroid.BlocklyPanel::setBackpack(Ljava/lang/String;));
   }-*/;
 
   private native void initJS() /*-{

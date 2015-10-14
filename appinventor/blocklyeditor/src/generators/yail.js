@@ -138,7 +138,7 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
   if (formProperties) {
     var sourceType = jsonObject.Source;
     if (sourceType == "Form") {
-      code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, "Form", null /*parent*/, 
+      code = code.concat(Blockly.Yail.getComponentLines(formName, formProperties, "Form", null /*parent*/,
         componentMap, false /*forRepl*/));
     } else {
       throw "Source type " + sourceType + " is invalid.";
@@ -151,7 +151,7 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
         return componentNames.indexOf(elem) == pos});
     componentNames = uniqueNames;
 
-    if (sourceType == "Form") {      
+    if (sourceType == "Form") {
       // Add runtime initializations
       code.push(Blockly.Yail.YAIL_INIT_RUNTIME);
     }
@@ -172,9 +172,9 @@ Blockly.Yail.getFormYail = function(formJson, packageName, forRepl) {
 };
 
 Blockly.Yail.getTaskYail = function(taskJson, packageName) {
-  var jsonObject = JSON.parse(taskJson); 
+  var jsonObject = JSON.parse(taskJson);
   var componentNames = [];
-  var taskProperties; 
+  var taskProperties;
   var taskName;
   var code = [];
   if (jsonObject.Properties) {
@@ -188,9 +188,9 @@ Blockly.Yail.getTaskYail = function(taskJson, packageName) {
   }
 
   code.push(Blockly.Yail.getYailTaskPrelude(packageName, taskName));
-      
+
   var componentMap = Blockly.Component.buildComponentMap([], [], false, false);
-  
+
   for (var comp in componentMap.components)
     componentNames.push(comp);
 
@@ -198,22 +198,22 @@ Blockly.Yail.getTaskYail = function(taskJson, packageName) {
   for (var i = 0, block; block = globalBlocks[i]; i++) {
     code.push(Blockly.Yail.blockToCodeContext(block, "Task"));
   }
-  
+
   if (taskProperties) {
     var sourceType = jsonObject.Source;
     if (sourceType == "Task") {
-      code = code.concat(Blockly.Yail.getComponentLines(taskName, taskProperties, "Task", null /*parent*/, 
+      code = code.concat(Blockly.Yail.getComponentLines(taskName, taskProperties, "Task", null /*parent*/,
         componentMap, false /*forRepl*/));
     } else {
       throw "Source type " + sourceType + " is invalid.";
     }
 
-    if (sourceType == "Task") {      
+    if (sourceType == "Task") {
       // Add runtime initializations
       code.push(Blockly.Yail.YAIL_INIT_RUNTIME);
     }
   }
-  
+
   return code.join('\n');  // Blank line between each section.
 };
 
@@ -318,7 +318,7 @@ Blockly.Yail.getComponentInitializationString = function(formName, componentName
  * @returns {Array} code strings
  * @private
  */
-Blockly.Yail.getComponentLines = function(formName, componentJson, context, parentName, componentMap, 
+Blockly.Yail.getComponentLines = function(formName, componentJson, context, parentName, componentMap,
   forRepl) {
   var code = [];
   var componentName = componentJson.$Name;
@@ -344,7 +344,7 @@ Blockly.Yail.getComponentLines = function(formName, componentJson, context, pare
   if (componentJson.$Components) {
     var children = componentJson.$Components;
     for (var i = 0, child; child = children[i]; i++) {
-      code = code.concat(Blockly.Yail.getComponentLines(formName, child, context, componentName, 
+      code = code.concat(Blockly.Yail.getComponentLines(formName, child, context, componentName,
         componentMap, forRepl));
     }
   }
@@ -364,7 +364,7 @@ Blockly.Yail.getComponentLines = function(formName, componentJson, context, pare
  * @returns {Array} code strings
  * @private
  */
-Blockly.Yail.getComponentPropertiesLines = function(context, formName, componentJson, parentName, 
+Blockly.Yail.getComponentPropertiesLines = function(context, formName, componentJson, parentName,
   includeComments) {
   var code = [];
   var componentName = componentJson.$Name;
@@ -415,12 +415,12 @@ Blockly.Yail.getTaskPropertiesLines = function(formName, componentJson, includeC
   }
   var yailForComponentProperties = Blockly.Yail.getPropertySettersLines("Task", componentJson, formName);
   if (yailForComponentProperties.length > 0) {
-    // getPropertySettersLine returns an array of lines.  So we need to 
+    // getPropertySettersLine returns an array of lines.  So we need to
     // concatenate them (using join) before pushing them onto the Yail expression.
     // WARNING:  There may be other type errors of this sort in this file, which
     // (hopefully) will be uncovered in testing. Please
     // be alert for these errors and check carefully.
-    code.push(Blockly.Yail.YAIL_DO_AFTER_TASK_CREATION + yailForComponentProperties.join(" ") + 
+    code.push(Blockly.Yail.YAIL_DO_AFTER_TASK_CREATION + yailForComponentProperties.join(" ") +
       Blockly.Yail.YAIL_CLOSE_BLOCK);
   }
   return code;
@@ -440,7 +440,7 @@ Blockly.Yail.getPropertySettersLines = function(context, componentJson, componen
   var code = [];
   for (var prop in componentJson) {
     if (prop.charAt(0) != "$" && prop != "Uuid") {
-      code.push(Blockly.Yail.getPropertySetterString(context, componentName, componentJson.$Type, prop, 
+      code.push(Blockly.Yail.getPropertySetterString(context, componentName, componentJson.$Type, prop,
         componentJson[prop]));
     }
   }
@@ -456,10 +456,10 @@ Blockly.Yail.getPropertySettersLines = function(context, componentJson, componen
  * @returns code string
  * @private
  */
-Blockly.Yail.getPropertySetterString = function(context, componentName, componentType, propertyName, 
+Blockly.Yail.getPropertySetterString = function(context, componentName, componentType, propertyName,
   propertyValue) {
   var code = Blockly.Yail.YAIL_SET_AND_COERCE_PROPERTY + Blockly.Yail.YAIL_DOUBLE_QUOTE + context +
-    Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + 
+    Blockly.Yail.YAIL_DOUBLE_QUOTE + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE +
     componentName + Blockly.Yail.YAIL_SPACER + Blockly.Yail.YAIL_QUOTE + propertyName + 
     Blockly.Yail.YAIL_SPACER;
   var propType = Blockly.Yail.YAIL_QUOTE + 
@@ -543,6 +543,7 @@ Blockly.Yail.quotifyForREPL = function(s) {
     var len = s.length;
     var lastIndex = len - 1;
     for (var i = 0; i < len; i++) {
+      var c;
       c = s.charAt(i);
       if (c == '\\') {
         // If this is \n don't slashify the backslash
