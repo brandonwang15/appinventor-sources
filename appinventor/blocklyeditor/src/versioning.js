@@ -1990,6 +1990,14 @@ Blockly.Versioning.AllUpgradeMaps =
 
   }, // End TableArrangementupgraders
 
+
+  "Task": {
+
+    //This is initial version. Placeholder for future upgrades
+    1: "noUpgrade"
+
+  }, // End Task upgraders
+
   "TextBox": {
 
     // AI1: The TextBox.NumbersOnly property was added.
