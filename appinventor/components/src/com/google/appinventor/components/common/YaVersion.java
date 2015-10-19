@@ -358,7 +358,7 @@ public class YaVersion {
   // For YOUNG_ANDROID_VERSION 140:
   // - HORIZONTALARRANGEMENT_COMPONENT_VERSION was incremented to 3.
   // - VERTICALARRANGEMENT_COMPONENT_VERSION was incremented to 3
-  // For YOUNG_ANDROID_VERSION 14:
+  // For YOUNG_ANDROID_VERSION 141:
   // - TASK_COMPONENT_VERSION was incremented to 1
 
   public static final int YOUNG_ANDROID_VERSION = 141;
