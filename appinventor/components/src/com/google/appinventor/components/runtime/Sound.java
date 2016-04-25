@@ -58,7 +58,7 @@ import java.util.Map;
     iconName = "images/soundEffect.png")
 @SimpleObject
 @UsesPermissions(permissionNames = "android.permission.VIBRATE, android.permission.INTERNET")
-public class Sound extends AndroidNonvisibleComponent
+public class Sound extends AndroidNonVisibleTaskComponent
     implements Component, OnResumeListener, OnStopListener, OnDestroyListener, Deleteable {
 
   private boolean loadComplete;    // did the sound finish loading
@@ -121,12 +121,23 @@ public class Sound extends AndroidNonvisibleComponent
     vibe = (Vibrator) form.getSystemService(Context.VIBRATOR_SERVICE);
     sourcePath = "";
     loadComplete = true;  //nothing to wait for until we attempt to load
-    form.registerForOnResume(this);
-    form.registerForOnStop(this);
-    form.registerForOnDestroy(this);
-
-    // Make volume buttons control media, not ringer.
-    form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+   
+    // Set up listeners
+    if (form != null) {
+      form.registerForOnResume(this);
+      form.registerForOnStop(this);
+      form.registerForOnDestroy(this);
+    } else {
+//      isTask = true;
+      task.registerForOnDestroy(this);//ask andrew about this - why is this not in web.java
+    }
+    
+    
+    if(form != null){
+        // Make volume buttons control media, not ringer.
+        form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    	
+    }
 
     // Default property values
     MinimumInterval(500);
@@ -186,11 +197,11 @@ public class Sound extends AndroidNonvisibleComponent
             // set flag to show that loading has begun
             loadComplete = false;
           } else {
-            form.dispatchErrorOccurredEvent(this, "Source",
+            dispatchErrorOccurredEvent(this, "Source",
                 ErrorMessages.ERROR_UNABLE_TO_LOAD_MEDIA, sourcePath);
           }
         } catch (IOException e) {
-          form.dispatchErrorOccurredEvent(this, "Source",
+          dispatchErrorOccurredEvent(this, "Source",
               ErrorMessages.ERROR_UNABLE_TO_LOAD_MEDIA, sourcePath);
         }
       }
@@ -249,7 +260,7 @@ public class Sound extends AndroidNonvisibleComponent
       // Alert the user that the sound is bad, but would need to look in the log to distinguish
       // this error from the UNABLE_TO_PLAY_MEDIA error in playAndCheck.
       Log.i("Sound", "Sound Id was 0. Did you remember to set the Source property?");
-      form.dispatchErrorOccurredEvent(this, "Play",
+      dispatchErrorOccurredEvent(this, "Play",
           ErrorMessages.ERROR_UNABLE_TO_PLAY_MEDIA, sourcePath);
     }
   }
@@ -272,7 +283,7 @@ public class Sound extends AndroidNonvisibleComponent
             delayRetries--;
             playWhenLoadComplete();
           } else {
-            form.dispatchErrorOccurredEvent(thisComponent, "Play",
+            dispatchErrorOccurredEvent(thisComponent, "Play",
                 ErrorMessages.ERROR_SOUND_NOT_READY, sourcePath);
           }
         }
@@ -285,7 +296,7 @@ public class Sound extends AndroidNonvisibleComponent
         PLAYBACK_RATE_NORMAL);
   Log.i("Sound", "SoundPool.play returned stream id " + streamId);
   if (streamId == 0) {
-    form.dispatchErrorOccurredEvent(this, "Play",
+    dispatchErrorOccurredEvent(this, "Play",
         ErrorMessages.ERROR_UNABLE_TO_PLAY_MEDIA, sourcePath);
 }
   }
