@@ -109,16 +109,26 @@ public class Sound extends AndroidNonVisibleTaskComponent
   private final Vibrator vibe;
   private final Handler playWaitHandler = new Handler();
 
+  private Context context;				  //application context - this is used instead of directly referencing Task or Form when Context is needed
+  
   //save a pointer to this Sound component to use in the error in postDelayed below
   private final Component thisComponent;
 
 
   public Sound(ComponentContainer container) {
     super(container.$form());
+    
+    if(form != null){
+    	context = form;
+    }
+    else {
+    	context = task;
+    }
+    
     thisComponent = this;
     soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
     soundMap = new HashMap<String, Integer>();
-    vibe = (Vibrator) form.getSystemService(Context.VIBRATOR_SERVICE);
+    vibe = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     sourcePath = "";
     loadComplete = true;  //nothing to wait for until we attempt to load
    
@@ -132,10 +142,12 @@ public class Sound extends AndroidNonVisibleTaskComponent
       task.registerForOnDestroy(this);//ask andrew about this - why is this not in web.java
     }
     
-    
+    //TODO: Figure out what funcitonality should be in Task - should it request audio focus? Should this be something that
+    //can be enabled in certain situations? How should the volume buttons behave when the task is running in the bg?
+    //See here: https://developer.android.com/training/managing-audio/audio-focus.html
     if(form != null){
         // Make volume buttons control media, not ringer.
-        form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        context.setVolumeControlStream(AudioManager.STREAM_MUSIC);
     	
     }
 
