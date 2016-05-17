@@ -127,10 +127,10 @@ public class MediaUtil {
 
   private static ConcurrentHashMap<String, String> pathCache = new ConcurrentHashMap<String, String>(2);
 
-  private static String findCaseinsensitivePath(Form form, String mediaPath)
+  private static String findCaseinsensitivePath(Context context, String mediaPath)
       throws IOException{
     if( !pathCache.containsKey(mediaPath) ){
-      String newPath = findCaseinsensitivePathWithoutCache(form, mediaPath);
+      String newPath = findCaseinsensitivePathWithoutCache(context, mediaPath);
       if( newPath == null){
         return null;
       }
