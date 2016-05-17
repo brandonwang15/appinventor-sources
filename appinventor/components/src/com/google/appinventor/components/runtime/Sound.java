@@ -212,7 +212,9 @@ public class Sound extends AndroidNonVisibleTaskComponent
       } else {
         Log.i("Sound", "No existing sound with path " + sourcePath + ".");
         try {
+          Log.i("Sound", "Just about to call MediaUtil.loadSoundPool");
           int newSoundId = MediaUtil.loadSoundPool(soundPool, form, sourcePath);
+          Log.i("Sound", "Just after calling MediaUtil.loadSoundPool");
           if (newSoundId != 0) {
             soundMap.put(sourcePath, newSoundId);
             Log.i("Sound", "Successfully began loading sound: setting soundId to " + newSoundId + ".");
