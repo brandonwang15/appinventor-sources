@@ -116,7 +116,7 @@ public class Sound extends AndroidNonVisibleTaskComponent
 
 
   public Sound(ComponentContainer container) {
-    super(container.$form());
+    super(container);
     
     context = container.$context();
     
@@ -135,6 +135,10 @@ public class Sound extends AndroidNonVisibleTaskComponent
     sourcePath = "";
     loadComplete = true;  //nothing to wait for until we attempt to load
    
+    //TODO: this might be sketchy, let's see if it works
+//    form = $form;
+//    task = $task;
+    
     // Set up listeners
     if (form != null) {
       form.registerForOnResume(this);
@@ -188,7 +192,9 @@ public class Sound extends AndroidNonVisibleTaskComponent
   @SimpleProperty
   public void Source(String path) {
     sourcePath = (path == null) ? "" : path;
-
+    
+    Log.i("Sound","Called Source with path = "+(path == null) ? "(null)" : path);
+    
     // Clear the previous sound.
     if (streamId != 0) {
       soundPool.stop(streamId);
@@ -198,9 +204,11 @@ public class Sound extends AndroidNonVisibleTaskComponent
 
     if (sourcePath.length() != 0) {
       Integer existingSoundId = soundMap.get(sourcePath);
+      Log.i("Sound", "sourcePath = "+sourcePath);
       if (existingSoundId != null) {
         soundId = existingSoundId;
-
+        Log.i("Sound", "existingSoundId != null, setting soundId to "+soundId);
+        
       } else {
         Log.i("Sound", "No existing sound with path " + sourcePath + ".");
         try {
