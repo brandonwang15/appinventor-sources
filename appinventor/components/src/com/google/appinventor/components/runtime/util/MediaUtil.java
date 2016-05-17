@@ -443,17 +443,17 @@ public class MediaUtil {
    * @param form the Form
    * @param mediaPath the path to the media
    */
-  private static AssetFileDescriptor getAssetsIgnoreCaseAfd(Form form, String mediaPath)
+  private static AssetFileDescriptor getAssetsIgnoreCaseAfd(Context context, String mediaPath)
       throws IOException{
     try {
-      return form.getAssets().openFd(mediaPath);
+      return context.getAssets().openFd(mediaPath);
 
     } catch (IOException e) {
-      String path = findCaseinsensitivePath(form, mediaPath);
+      String path = findCaseinsensitivePath(context, mediaPath);
       if (path == null){
         throw e;
       } else {
-      return form.getAssets().openFd(path);
+      return context.getAssets().openFd(path);
       }
     }
   }
@@ -470,12 +470,12 @@ public class MediaUtil {
    * @param form the Form
    * @param mediaPath the path to the media
    */
-  public static int loadSoundPool(SoundPool soundPool, Form form, String mediaPath)
+  public static int loadSoundPool(SoundPool soundPool, Context context, String mediaPath)
       throws IOException {
-    MediaSource mediaSource = determineMediaSource(form, mediaPath);
+    MediaSource mediaSource = determineMediaSource(context, mediaPath);
     switch (mediaSource) {
       case ASSET:
-        return soundPool.load(getAssetsIgnoreCaseAfd(form,mediaPath), 1);
+        return soundPool.load(getAssetsIgnoreCaseAfd(context,mediaPath), 1);
 
       case REPL_ASSET:
         return soundPool.load(replAssetPath(mediaPath), 1);
@@ -488,7 +488,7 @@ public class MediaUtil {
 
       case CONTENT_URI:
       case URL:
-        File tempFile = cacheMediaTempFile(form, mediaPath, mediaSource);
+        File tempFile = cacheMediaTempFile(context, mediaPath, mediaSource);
         return soundPool.load(tempFile.getAbsolutePath(), 1);
 
       case CONTACT_URI:
