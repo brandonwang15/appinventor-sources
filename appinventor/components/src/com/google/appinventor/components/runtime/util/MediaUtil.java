@@ -87,10 +87,10 @@ public class MediaUtil {
    * <p>Otherwise, if <code>mediaPath</code> it is assumed to be the name of
    * an asset.
    *
-   * @param form the Form
+   * @param context the Context
    * @param mediaPath the path to the media
    */
-  private static MediaSource determineMediaSource(Form form, String mediaPath) {
+  private static MediaSource determineMediaSource(Context context, String mediaPath) {
     if (mediaPath.startsWith("/sdcard/") ||
         mediaPath.startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) {
       return MediaSource.SDCARD;
@@ -115,7 +115,7 @@ public class MediaUtil {
       // It's not a well formed URL!
     }
 
-    if (form instanceof ReplForm) {
+    if (context instanceof ReplForm) {
       if (((ReplForm)form).isAssetsLoaded())
         return MediaSource.REPL_ASSET;
       else
@@ -142,14 +142,14 @@ public class MediaUtil {
   /**
    * Don't use this directly! Use findCaseinsensitivePath. It has caching.
    * This is the original findCaseinsensitivePath, unchanged.
-   * @param form the Form
+   * @param context the Context
    * @param mediaPath the path to the media to resolve
    * @return the correct path, adjusted for case errors
    * @throws IOException
    */
-  private static String findCaseinsensitivePathWithoutCache(Form form, String mediaPath)
+  private static String findCaseinsensitivePathWithoutCache(Context context, String mediaPath)
       throws IOException{
-    String[] mediaPathlist = form.getAssets().list("");
+    String[] mediaPathlist = context.getAssets().list("");
     int l = Array.getLength(mediaPathlist);
     for (int i=0; i<l; i++){
       String temp = mediaPathlist[i];
@@ -164,20 +164,20 @@ public class MediaUtil {
    * find path of an asset from a mediaPath using case-insensitive comparison,
    * return type InputStream.
    * Throws IOException if there is no matching path
-   * @param form the Form
+   * @param context the Context
    * @param mediaPath the path to the media
    */
-  private static InputStream getAssetsIgnoreCaseInputStream(Form form, String mediaPath)
+  private static InputStream getAssetsIgnoreCaseInputStream(Context context, String mediaPath)
       throws IOException{
     try {
-      return form.getAssets().open(mediaPath);
+      return context.getAssets().open(mediaPath);
 
     } catch (IOException e) {
-      String path = findCaseinsensitivePath(form, mediaPath);
+      String path = findCaseinsensitivePath(context, mediaPath);
       if (path == null) {
           throw e;
         } else {
-          return form.getAssets().open(path);
+          return context.getAssets().open(path);
         }
     }
   }
