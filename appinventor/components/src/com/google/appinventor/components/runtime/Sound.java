@@ -118,12 +118,15 @@ public class Sound extends AndroidNonVisibleTaskComponent
   public Sound(ComponentContainer container) {
     super(container.$form());
     
-    if(form != null){
-    	context = form;
-    }
-    else {
-    	context = task;
-    }
+    context = container.$context();
+    
+//    if(form != null){
+//    	context = form;
+//    }
+//    else {
+//    	//task is null here
+//    	context = task;
+//    }
     
     thisComponent = this;
     soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
@@ -147,7 +150,7 @@ public class Sound extends AndroidNonVisibleTaskComponent
     //See here: https://developer.android.com/training/managing-audio/audio-focus.html
     if(form != null){
         // Make volume buttons control media, not ringer.
-        context.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
     	
     }
 
