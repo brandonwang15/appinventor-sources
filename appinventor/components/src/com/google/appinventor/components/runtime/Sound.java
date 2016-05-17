@@ -193,7 +193,7 @@ public class Sound extends AndroidNonVisibleTaskComponent
   public void Source(String path) {
     sourcePath = (path == null) ? "" : path;
     
-    Log.i("Sound","Called Source with path = "+(path == null) ? "(null)" : path);
+    Log.i("Sound","Called Source with path = "+((path == null) ? "(null)" : path));
     
     // Clear the previous sound.
     if (streamId != 0) {
@@ -220,10 +220,13 @@ public class Sound extends AndroidNonVisibleTaskComponent
             // set flag to show that loading has begun
             loadComplete = false;
           } else {
-            dispatchErrorOccurredEvent(this, "Source",
+            Log.i("Sound","newSoundId = 0");
+        	  dispatchErrorOccurredEvent(this, "Source",
                 ErrorMessages.ERROR_UNABLE_TO_LOAD_MEDIA, sourcePath);
+            
           }
         } catch (IOException e) {
+        	Log.i("Sound","Exception caught: "+e.toString());
           dispatchErrorOccurredEvent(this, "Source",
               ErrorMessages.ERROR_UNABLE_TO_LOAD_MEDIA, sourcePath);
         }
