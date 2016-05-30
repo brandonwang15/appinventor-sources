@@ -182,11 +182,11 @@ public class MediaUtil {
     }
   }
 
-  private static InputStream openMedia(Form form, String mediaPath, MediaSource mediaSource)
+  private static InputStream openMedia(Context context, String mediaPath, MediaSource mediaSource)
       throws IOException {
     switch (mediaSource) {
       case ASSET:
-        return getAssetsIgnoreCaseInputStream(form,mediaPath);
+        return getAssetsIgnoreCaseInputStream(context,mediaPath);
 
       case REPL_ASSET:
         return new FileInputStream(replAssetPath(mediaPath));
@@ -199,16 +199,16 @@ public class MediaUtil {
         return new URL(mediaPath).openStream();
 
       case CONTENT_URI:
-        return form.getContentResolver().openInputStream(Uri.parse(mediaPath));
+        return context.getContentResolver().openInputStream(Uri.parse(mediaPath));
 
       case CONTACT_URI:
         // Open the photo for the contact.
         InputStream is = null;
         if (SdkLevel.getLevel() >= SdkLevel.LEVEL_HONEYCOMB_MR1) {
-          is = HoneycombMR1Util.openContactPhotoInputStreamHelper(form.getContentResolver(),
+          is = HoneycombMR1Util.openContactPhotoInputStreamHelper(context.getContentResolver(),
               Uri.parse(mediaPath));
         } else {
-          is = Contacts.People.openContactPhotoInputStream(form.getContentResolver(),
+          is = Contacts.People.openContactPhotoInputStream(context.getContentResolver(),
               Uri.parse(mediaPath));
         }
         if (is != null) {
