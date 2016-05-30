@@ -220,8 +220,8 @@ public class MediaUtil {
     throw new IOException("Unable to open media " + mediaPath + ".");
   }
 
-  public static InputStream openMedia(Form form, String mediaPath) throws IOException {
-    return openMedia(form, mediaPath, determineMediaSource(form, mediaPath));
+  public static InputStream openMedia(Context context, String mediaPath) throws IOException {
+    return openMedia(context, mediaPath, determineMediaSource(context, mediaPath));
   }
 
   /**
@@ -231,15 +231,15 @@ public class MediaUtil {
    * @param form the Form
    * @param mediaPath the path to the media
    */
-  public static File copyMediaToTempFile(Form form, String mediaPath)
+  public static File copyMediaToTempFile(Context context, String mediaPath)
       throws IOException {
     MediaSource mediaSource = determineMediaSource(form, mediaPath);
-    return copyMediaToTempFile(form, mediaPath, mediaSource);
+    return copyMediaToTempFile(context, mediaPath, mediaSource);
   }
 
-  private static File copyMediaToTempFile(Form form, String mediaPath, MediaSource mediaSource)
+  private static File copyMediaToTempFile(Context context, String mediaPath, MediaSource mediaSource)
       throws IOException {
-    InputStream in = openMedia(form, mediaPath, mediaSource);
+    InputStream in = openMedia(context, mediaPath, mediaSource);
     File file = null;
     try {
       file = File.createTempFile("AI_Media_", null);
@@ -264,14 +264,14 @@ public class MediaUtil {
     }
   }
 
-  private static File cacheMediaTempFile(Form form, String mediaPath, MediaSource mediaSource)
+  private static File cacheMediaTempFile(Context context, String mediaPath, MediaSource mediaSource)
       throws IOException {
     File tempFile = tempFileMap.get(mediaPath);
     // If the map didn't contain an entry for mediaPath, or if the temp file no longer exists,
     // copy the file to a new temp file.
     if (tempFile == null || !tempFile.exists()) {
       Log.i(LOG_TAG, "Copying media " + mediaPath + " to temp file...");
-      tempFile = copyMediaToTempFile(form, mediaPath, mediaSource);
+      tempFile = copyMediaToTempFile(context, mediaPath, mediaSource);
       Log.i(LOG_TAG, "Finished copying media " + mediaPath + " to temp file " +
           tempFile.getAbsolutePath());
       tempFileMap.put(mediaPath, tempFile);
@@ -308,7 +308,7 @@ public class MediaUtil {
     } catch (IOException e) {
       if (mediaSource == MediaSource.CONTACT_URI) {
         // There's no photo for this contact, return a placeholder image.
-        return new BitmapDrawable(BitmapFactory.decodeResource(form.getResources(),
+        return new BitmapDrawable(BitmapFactory.decodeResource(context.getResources(),
             android.R.drawable.picture_frame, null));
       }
       throw e;
@@ -321,7 +321,7 @@ public class MediaUtil {
       is1.close();
     }
 
-    InputStream is2 = openMedia(form, mediaPath, mediaSource);
+    InputStream is2 = openMedia(context, mediaPath, mediaSource);
     try {
       Log.d(LOG_TAG, "mediaPath = " + mediaPath);
       BitmapDrawable originalBitmapDrawable = new BitmapDrawable(decodeStream(is2, null, options));
@@ -338,7 +338,7 @@ public class MediaUtil {
       //   4. create a new bitmap drawable with the scaled bitmap
       //   5. set the density in the scaled bitmap.
 
-      originalBitmapDrawable.setTargetDensity(form.getResources().getDisplayMetrics());
+      originalBitmapDrawable.setTargetDensity(context.getResources().getDisplayMetrics());
       if ((options.inSampleSize != 1) || (form.deviceDensity() == 1.0f)) {
         return originalBitmapDrawable;
       }
@@ -508,12 +508,12 @@ public class MediaUtil {
    * @param form the Form
    * @param mediaPath the path to the media
    */
-  public static void loadMediaPlayer(MediaPlayer mediaPlayer, Form form, String mediaPath)
+  public static void loadMediaPlayer(MediaPlayer mediaPlayer, Context context, String mediaPath)
       throws IOException {
-    MediaSource mediaSource = determineMediaSource(form, mediaPath);
+    MediaSource mediaSource = determineMediaSource(context, mediaPath);
     switch (mediaSource) {
       case ASSET:
-        AssetFileDescriptor afd = getAssetsIgnoreCaseAfd(form,mediaPath);
+        AssetFileDescriptor afd = getAssetsIgnoreCaseAfd(context,mediaPath);
         try {
           FileDescriptor fd = afd.getFileDescriptor();
           long offset = afd.getStartOffset();
@@ -545,7 +545,7 @@ public class MediaUtil {
         return;
 
       case CONTENT_URI:
-        mediaPlayer.setDataSource(form, Uri.parse(mediaPath));
+        mediaPlayer.setDataSource(context, Uri.parse(mediaPath));
         return;
 
       case CONTACT_URI:
@@ -567,13 +567,13 @@ public class MediaUtil {
    * @param form the Form
    * @param mediaPath the path to the media
    */
-  public static void loadVideoView(VideoView videoView, Form form, String mediaPath)
+  public static void loadVideoView(VideoView videoView, Context context, String mediaPath)
       throws IOException {
-    MediaSource mediaSource = determineMediaSource(form, mediaPath);
+    MediaSource mediaSource = determineMediaSource(context, mediaPath);
     switch (mediaSource) {
       case ASSET:
       case URL:
-        File tempFile = cacheMediaTempFile(form, mediaPath, mediaSource);
+        File tempFile = cacheMediaTempFile(context, mediaPath, mediaSource);
         videoView.setVideoPath(tempFile.getAbsolutePath());
         return;
 
