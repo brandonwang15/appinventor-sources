@@ -116,7 +116,7 @@ public class MediaUtil {
     }
 
     if (context instanceof ReplForm) {
-      if (((ReplForm)form).isAssetsLoaded())
+      if (((ReplForm)context).isAssetsLoaded())
         return MediaSource.REPL_ASSET;
       else
         return MediaSource.ASSET;
@@ -233,7 +233,7 @@ public class MediaUtil {
    */
   public static File copyMediaToTempFile(Context context, String mediaPath)
       throws IOException {
-    MediaSource mediaSource = determineMediaSource(form, mediaPath);
+    MediaSource mediaSource = determineMediaSource(context, mediaPath);
     return copyMediaToTempFile(context, mediaPath, mediaSource);
   }
 
@@ -308,7 +308,7 @@ public class MediaUtil {
     } catch (IOException e) {
       if (mediaSource == MediaSource.CONTACT_URI) {
         // There's no photo for this contact, return a placeholder image.
-        return new BitmapDrawable(BitmapFactory.decodeResource(context.getResources(),
+        return new BitmapDrawable(BitmapFactory.decodeResource(form.getResources(),
             android.R.drawable.picture_frame, null));
       }
       throw e;
@@ -321,7 +321,7 @@ public class MediaUtil {
       is1.close();
     }
 
-    InputStream is2 = openMedia(context, mediaPath, mediaSource);
+    InputStream is2 = openMedia(form, mediaPath, mediaSource);
     try {
       Log.d(LOG_TAG, "mediaPath = " + mediaPath);
       BitmapDrawable originalBitmapDrawable = new BitmapDrawable(decodeStream(is2, null, options));
@@ -338,7 +338,7 @@ public class MediaUtil {
       //   4. create a new bitmap drawable with the scaled bitmap
       //   5. set the density in the scaled bitmap.
 
-      originalBitmapDrawable.setTargetDensity(context.getResources().getDisplayMetrics());
+      originalBitmapDrawable.setTargetDensity(form.getResources().getDisplayMetrics());
       if ((options.inSampleSize != 1) || (form.deviceDensity() == 1.0f)) {
         return originalBitmapDrawable;
       }

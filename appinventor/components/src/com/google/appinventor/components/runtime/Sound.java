@@ -118,7 +118,11 @@ public class Sound extends AndroidNonVisibleTaskComponent
   public Sound(ComponentContainer container) {
     super(container);
     
+    
+    
     context = container.$context();
+    
+    //Log.e("APPINV", context == null ? "CONTEXT null" : "CONTEXTnot null");
     
 //    if(form != null){
 //    	context = form;
