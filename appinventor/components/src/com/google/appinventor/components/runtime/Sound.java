@@ -122,26 +122,12 @@ public class Sound extends AndroidNonVisibleTaskComponent
     
     context = container.$context();
     
-    //Log.e("APPINV", context == null ? "CONTEXT null" : "CONTEXTnot null");
-    
-//    if(form != null){
-//    	context = form;
-//    }
-//    else {
-//    	//task is null here
-//    	context = task;
-//    }
-    
     thisComponent = this;
     soundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
     soundMap = new HashMap<String, Integer>();
     vibe = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
     sourcePath = "";
     loadComplete = true;  //nothing to wait for until we attempt to load
-   
-    //TODO: this might be sketchy, let's see if it works
-//    form = $form;
-//    task = $task;
     
     // Set up listeners
     if (form != null) {
@@ -149,7 +135,6 @@ public class Sound extends AndroidNonVisibleTaskComponent
       form.registerForOnStop(this);
       form.registerForOnDestroy(this);
     } else {
-//      isTask = true;
       task.registerForOnDestroy(this);//ask andrew about this - why is this not in web.java
     }
     
