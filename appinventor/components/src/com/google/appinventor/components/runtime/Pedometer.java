@@ -41,7 +41,7 @@ import android.util.Log;
                    iconName = "images/pedometer.png")
 @SimpleObject
 @UsesPermissions(permissionNames = "android.permission.ACCESS_FINE_LOCATION")
-public class Pedometer extends AndroidNonvisibleComponent
+public class Pedometer extends AndroidNonVisibleTaskComponent
     implements Component, LocationListener, SensorEventListener, Deleteable {
   private static final String TAG = "Pedometer";
   private static final String PREFS_NAME = "PedometerPrefs";
@@ -54,7 +54,7 @@ public class Pedometer extends AndroidNonvisibleComponent
   private static final float STRIDE_LENGTH = (float) 0.73;
   private static final float PEAK_VALLEY_RANGE = (float) 4.0;
 
-  private final Context context;;
+  private final Context context;
   private final SensorManager sensorManager;
   private final LocationManager locationManager;
 
@@ -92,7 +92,7 @@ public class Pedometer extends AndroidNonvisibleComponent
 
   /** Constructor. */
   public Pedometer(ComponentContainer container) {
-    super(container.$form());
+    super(container);
     context = container.$context();
     // some initialization
     winPos = 0;
