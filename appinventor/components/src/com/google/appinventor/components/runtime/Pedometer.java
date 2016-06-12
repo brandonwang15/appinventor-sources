@@ -36,7 +36,7 @@ import android.util.Log;
  */
 @DesignerComponent(version = YaVersion.PEDOMETER_COMPONENT_VERSION,
                    description = "Component that can count steps.",
-                   category = ComponentCategory.INTERNAL,
+                   category = ComponentCategory.SENSORS,
                    nonVisible = true,
                    iconName = "images/pedometer.png")
 @SimpleObject
@@ -93,6 +93,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
   /** Constructor. */
   public Pedometer(ComponentContainer container) {
     super(container);
+    Log.i("Pedometer","Pedometer Constructor called.");
     context = container.$context();
     // some initialization
     winPos = 0;
@@ -129,6 +130,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction
   public void Start() {
+	Log.i("Pedometer","Start called.");
     if (pedometerPaused) {
       pedometerPaused = false;
       sensorManager.registerListener(this,
@@ -143,6 +145,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction
   public void Stop() {
+	Log.i("Pedometer","Stop called.");
     Pause();
     locationManager.removeUpdates(this);
     useGps = false;
@@ -155,6 +158,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction
   public void Reset() {
+	  Log.i("Pedometer","Reset called.");
     numStepsWithFilter = 0;
     numStepsRaw = 0;
     totalDistance = 0;
@@ -168,6 +172,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction
   public void Resume() {
+	  Log.i("Pedometer","Resume called.");
     Start();
   }
 
@@ -176,6 +181,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction
   public void Pause() {
+	  Log.i("Pedometer","Pause called.");
     if (!pedometerPaused) {
       pedometerPaused = true;
       statusMoving = false;
@@ -190,6 +196,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleFunction(description = "Saves the pedometer state to the phone")
   public void Save() {
+	  Log.i("Pedometer","Save called.");
     // Store preferences
     SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = settings.edit();
@@ -217,6 +224,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleEvent(description = "This event is run when a raw step is detected")
   public void SimpleStep(int simpleSteps, float distance) {
+	Log.i("Pedometer","SimpleStep called.");
     EventDispatcher.dispatchEvent(this, "SimpleStep", simpleSteps, distance);
   }
 
@@ -229,7 +237,8 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleEvent(description = "This event is run when a walking step is detected")
   public void WalkStep(int walkSteps, float distance) {
-    EventDispatcher.dispatchEvent(this, "WalkStep", walkSteps, distance);
+	 Log.i("Pedometer","WalkStep called.");
+	 EventDispatcher.dispatchEvent(this, "WalkStep", walkSteps, distance);
   }
 
   /**
@@ -237,6 +246,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleEvent
   public void StartedMoving() {
+	Log.i("Pedometer","StartedMoving called.");
     EventDispatcher.dispatchEvent(this, "StartedMoving");
   }
 
@@ -245,6 +255,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
    */
   @SimpleEvent
   public void StoppedMoving() {
+	Log.i("Pedometer","StoppedMoving called.");
     EventDispatcher.dispatchEvent(this, "StoppedMoving");
   }
 
@@ -589,6 +600,7 @@ public class Pedometer extends AndroidNonVisibleTaskComponent
 
   @Override
   public void onLocationChanged(Location loc) {
+	Log.i("Pedometer","onLocationChanged called.");
     // If pedometer says stopped, return
     if (!statusMoving || pedometerPaused || !useGps) {
       return;
