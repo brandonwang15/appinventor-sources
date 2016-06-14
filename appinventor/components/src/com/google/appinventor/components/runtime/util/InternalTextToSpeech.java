@@ -6,6 +6,7 @@
 package com.google.appinventor.components.runtime.util;
 
 import android.app.Activity;
+import android.content.Context;	
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
 
@@ -35,7 +36,7 @@ public class InternalTextToSpeech implements ITextToSpeech {
 
   private static final String LOG_TAG = "InternalTTS";
 
-  private final Activity activity;
+  private final Context context;
   private final TextToSpeechCallback callback;
   private TextToSpeech tts;
   private volatile boolean isTtsInitialized;
@@ -52,8 +53,8 @@ public class InternalTextToSpeech implements ITextToSpeech {
   // no speech in the case of initialization slowness
   private int ttsMaxRetries = 20;
 
-  public InternalTextToSpeech(Activity activity, TextToSpeechCallback callback) {
-    this.activity = activity;
+  public InternalTextToSpeech(Context context, TextToSpeechCallback callback) {
+    this.context = context;
     this.callback = callback;
     initializeTts();
   }
@@ -61,7 +62,7 @@ public class InternalTextToSpeech implements ITextToSpeech {
   private void initializeTts() {
     if (tts == null) {
       Log.d(LOG_TAG, "INTERNAL TTS is reinitializing");
-      tts = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
+      tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
         @Override
         public void onInit(int status) {
           if (status == TextToSpeech.SUCCESS) {
@@ -100,11 +101,23 @@ public class InternalTextToSpeech implements ITextToSpeech {
             public void onUtteranceCompleted(String utteranceId) {
               // onUtteranceCompleted is not called on the UI thread, so we use
               // Activity.runOnUiThread() to call callback.onSuccess().
-              activity.runOnUiThread(new Runnable() {
-                public void run() {
-                  callback.onSuccess();
-                }
-              });
+              if (context instanceof Activity){
+	              ((Activity)context).runOnUiThread(new Runnable() {
+	                public void run() {
+	                  callback.onSuccess();
+	                }
+	              });
+              }
+              else
+              {
+            	  Runnable r = new Runnable() {
+  	                public void run() {
+  	                  callback.onSuccess();
+  	                }
+  	              };
+  	              mHandler.post(r);
+  	              
+              }
             }
           });
       // We need to provide an utterance id. Otherwise onUtteranceCompleted won't be called.

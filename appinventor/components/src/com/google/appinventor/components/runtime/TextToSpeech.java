@@ -58,7 +58,7 @@ description = "The TestToSpeech component speaks a given text aloud.  You can se
     nonVisible = true,
     iconName = "images/textToSpeech.png")
 @SimpleObject
-public class TextToSpeech extends AndroidNonvisibleComponent
+public class TextToSpeech extends AndroidNonVisibleTaskComponent
 implements Component, OnStopListener, OnResumeListener, OnDestroyListener /*, ActivityResultListener  */{
 
   private static final Map<String, Locale> iso3LanguageToLocaleMap = Maps.newHashMap();
@@ -120,7 +120,7 @@ implements Component, OnStopListener, OnResumeListener, OnDestroyListener /*, Ac
    * @param container container, component will be placed in
    */
   public TextToSpeech(ComponentContainer container) {
-    super(container.$form());
+    super(container);
     result = false;
     Language(Component.DEFAULT_VALUE_TEXT_TO_SPEECH_LANGUAGE);
     Country(Component.DEFAULT_VALUE_TEXT_TO_SPEECH_COUNTRY);
@@ -141,14 +141,26 @@ implements Component, OnStopListener, OnResumeListener, OnDestroyListener /*, Ac
       }
     };
     tts = useExternalLibrary ? new ExternalTextToSpeech(container, callback)
-                             : new InternalTextToSpeech((android.app.Activity) container.$context(), callback);
-    // Set up listeners
-    form.registerForOnStop(this);
-    form.registerForOnResume(this);
-    form.registerForOnDestroy(this);
-    // Make volume buttons control media, not ringer.
-    form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+                             : new InternalTextToSpeech(container.$context(), callback);
 
+    // Set up listeners
+    if (form != null) {
+      form.registerForOnResume(this);
+      form.registerForOnStop(this);
+      form.registerForOnDestroy(this);
+    } else {
+      task.registerForOnDestroy(this);//ask andrew about this - why is this not in web.java
+    }
+    
+    //TODO: Figure out what funcitonality should be in Task - should it request audio focus? Should this be something that
+    //can be enabled in certain situations? How should the volume buttons behave when the task is running in the bg?
+    //See here: https://developer.android.com/training/managing-audio/audio-focus.html
+    if(form != null){
+        // Make volume buttons control media, not ringer.
+        form.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    	
+    }
+    
     isTtsPrepared = false;
     languageList = new ArrayList<String>();
     countryList = new ArrayList<String>();
@@ -353,7 +365,7 @@ implements Component, OnStopListener, OnResumeListener, OnDestroyListener /*, Ac
   public void prepareLanguageAndCountryProperties() {
     if (!isTtsPrepared) {
       if (!tts.isInitialized()) {
-        form.dispatchErrorOccurredEvent(this, "TextToSpeech",
+        dispatchErrorOccurredEvent(this, "TextToSpeech",
             ErrorMessages.ERROR_TTS_NOT_READY);
         // Force the TTS engine to initialize by making it speak.
         // If it's not ready the user will have to try again.
